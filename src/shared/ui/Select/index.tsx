@@ -11,6 +11,22 @@ interface SelectTriggerProps extends React.ComponentPropsWithoutRef<typeof Selec
   className?: string
 }
 
+interface SelectContentProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {
+  className?: string
+  position?: "item-aligned" | "popper"
+}
+
+interface SelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
+  className?: string
+}
+
+/**
+ * @param {object[string, React.ReactNode, object[string, string, React.Ref<HTMLDivElement>]]} props
+ * @property {string} props.className - 선택 트리거에 적용할 클래스 이름
+ * @property {React.ReactNode} props.children - 선택 트리거의 자식 요소
+ * @property {React.Ref<HTMLDivElement>} ref - 선택 트리거에 적용할 참조
+ * @returns 선택 트리거 컴포넌트
+ */
 export const SelectTrigger = forwardRef<React.ElementRef<typeof SelectPrimitive.Trigger>, SelectTriggerProps>(
   ({ className, children, ...props }, ref) => (
     <SelectPrimitive.Trigger
@@ -25,11 +41,13 @@ export const SelectTrigger = forwardRef<React.ElementRef<typeof SelectPrimitive.
 )
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
-interface SelectContentProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {
-  className?: string
-  position?: "item-aligned" | "popper"
-}
-
+/**
+ * @param {object[string, React.ReactNode, object[string, string, React.Ref<HTMLDivElement>]]} props
+ * @property {string} props.className - 선택 컨텐츠에 적용할 클래스 이름
+ * @property {React.ReactNode} props.children - 선택 컨텐츠의 자식 요소
+ * @property {React.Ref<HTMLDivElement>} ref - 선택 컨텐츠에 적용할 참조
+ * @returns 선택 컨텐츠 컴포넌트
+ */
 export const SelectContent = forwardRef<React.ElementRef<typeof SelectPrimitive.Content>, SelectContentProps>(
   ({ className, children, position = "popper", ...props }, ref) => (
     <SelectPrimitive.Portal>
@@ -46,10 +64,13 @@ export const SelectContent = forwardRef<React.ElementRef<typeof SelectPrimitive.
 )
 SelectContent.displayName = SelectPrimitive.Content.displayName
 
-interface SelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
-  className?: string
-}
-
+/**
+ * @param {object[string, React.ReactNode, object[string, string, React.Ref<HTMLDivElement>]]} props
+ * @property {string} props.className - 선택 아이템에 적용할 클래스 이름
+ * @property {React.ReactNode} props.children - 선택 아이템의 자식 요소
+ * @property {React.Ref<HTMLDivElement>} ref - 선택 아이템에 적용할 참조
+ * @returns 선택 아이템 컴포넌트
+ */
 export const SelectItem = forwardRef<React.ElementRef<typeof SelectPrimitive.Item>, SelectItemProps>(
   ({ className, children, ...props }, ref) => (
     <SelectPrimitive.Item

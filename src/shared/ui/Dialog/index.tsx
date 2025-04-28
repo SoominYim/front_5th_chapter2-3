@@ -12,6 +12,21 @@ interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof Dialo
   className?: string
 }
 
+interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string
+}
+
+interface DialogTitleProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> {
+  className?: string
+}
+
+/**
+ * @param {object[string, React.ReactNode, object[string, string, React.Ref<HTMLDivElement>]]} props
+ * @property {string} props.className - 대화 컨텐츠에 적용할 클래스 이름
+ * @property {React.ReactNode} props.children - 대화 컨텐츠의 자식 요소
+ * @property {React.Ref<HTMLDivElement>} ref - 대화 컨텐츠에 적용할 참조
+ * @returns 대화 컨텐츠 컴포넌트
+ */
 export const DialogContent = forwardRef<React.ElementRef<typeof DialogPrimitive.Content>, DialogContentProps>(
   ({ className, children, ...props }, ref) => (
     <DialogPortal>
@@ -32,19 +47,23 @@ export const DialogContent = forwardRef<React.ElementRef<typeof DialogPrimitive.
 )
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
-interface DialogHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string
-}
-
+/**
+ * @param {object[string, object[string, string, React.HTMLAttributes<HTMLDivElement>]]} props
+ * @property {string} props.className - 대화 헤더에 적용할 클래스 이름
+ * @property {React.HTMLAttributes<HTMLDivElement>} props - 대화 헤더에 적용할 속성
+ * @returns 대화 헤더 컴포넌트
+ */
 export const DialogHeader = ({ className, ...props }: DialogHeaderProps) => (
   <div className={`flex flex-col space-y-1.5 text-center sm:text-left ${className || ""}`} {...props} />
 )
 DialogHeader.displayName = "DialogHeader"
 
-interface DialogTitleProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> {
-  className?: string
-}
-
+/**
+ * @param {object[string, object[string, string, React.HTMLAttributes<HTMLHeadingElement>]]} props
+ * @property {string} props.className - 대화 타이틀에 적용할 클래스 이름
+ * @property {React.HTMLAttributes<HTMLHeadingElement>} props - 대화 타이틀에 적용할 속성
+ * @returns 대화 타이틀 컴포넌트
+ */
 export const DialogTitle = forwardRef<React.ElementRef<typeof DialogPrimitive.Title>, DialogTitleProps>(
   ({ className, ...props }, ref) => (
     <DialogPrimitive.Title

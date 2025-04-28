@@ -2,6 +2,10 @@ import * as React from "react"
 import { forwardRef } from "react"
 import { cva, VariantProps } from "class-variance-authority"
 
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+  className?: string
+}
+
 const buttonVariants = cva(
   "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
   {
@@ -28,10 +32,15 @@ const buttonVariants = cva(
   },
 )
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
-  className?: string
-}
-
+/**
+ * @param {object[string, object[string, string, object[string, string, React.ButtonHTMLAttributes<HTMLButtonElement>]]]} props
+ * @property {string} props.className - 버튼에 적용할 클래스 이름
+ * @property {string} props.variant - 버튼의 변형
+ * @property {string} props.size - 버튼의 크기
+ * @property {React.ButtonHTMLAttributes<HTMLButtonElement>} props - 버튼에 적용할 속성
+ * @property {React.Ref<HTMLButtonElement>} ref - 버튼에 적용할 참조
+ * @returns 버튼 컴포넌트
+ */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, ...props }, ref) => {
   return <button className={buttonVariants({ variant, size, className })} ref={ref} {...props} />
 })

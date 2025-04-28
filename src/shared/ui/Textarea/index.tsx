@@ -6,8 +6,10 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 }
 
 /**
- * @param className - 컴포넌트에 적용할 클래스 이름
- * @param props - 텍스트 입력 영역에 적용할 속성
+ * @param {object[string, object[string, string, React.TextareaHTMLAttributes<HTMLTextAreaElement>]]} props
+ * @property {string} props.className - 텍스트 입력 영역에 적용할 클래스 이름
+ * @property {React.TextareaHTMLAttributes<HTMLTextAreaElement>} props - 텍스트 입력 영역에 적용할 속성
+ * @property {React.Ref<HTMLTextAreaElement>} ref - 텍스트 입력 영역에 적용할 참조
  * @returns 텍스트 입력 영역 컴포넌트
  */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, ...props }, ref) => {

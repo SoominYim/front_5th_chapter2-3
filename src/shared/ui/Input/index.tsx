@@ -5,6 +5,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string
 }
 
+/**
+ * @param {object[string, string, React.Ref<HTMLInputElement>]} props
+ * @property {string} props.className - 인풋에 적용할 클래스 이름
+ * @property {string} props.type - 인풋의 타입
+ * @property {React.Ref<HTMLInputElement>} props.ref - 인풋에 적용할 참조
+ * @returns 인풋 컴포넌트
+ */
 export const Input = forwardRef<HTMLInputElement, InputProps>(({ className, type, ...props }, ref) => {
   return (
     <input
