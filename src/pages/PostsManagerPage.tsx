@@ -10,6 +10,8 @@ import PostsPagination from "../features/filters/ui/PostPagination.tsx"
 import { useDeletePost } from "../features/posts/api/useDeletePost.ts"
 import FilterWrapper from "../features/filters/ui/filters/FilterWrapper.tsx"
 import { useCreateComment } from "../entities/comment/api/createComments.ts"
+import Post from "../entities/post/model/type.ts"
+import User from "../entities/user/model/type.ts"
 // Store
 import usePostsStore from "../features/posts/model/usePostsStore.ts"
 import useCommentStore from "../features/comments/model/useCommentStore.ts"
@@ -218,14 +220,14 @@ const PostsManager = () => {
 
 
   // 게시물 상세 보기
-  const openPostDetail = (post) => {
+  const openPostDetail = (post: Post) => {
     setSelectedPost(post)
-    fetchComments(post.id)
+    setComments(post.id, comments[post.id])
     setShowPostDetailDialog(true)
   }
 
   // 사용자 모달 열기
-  const openUserModal = async (user) => {
+  const openUserModal = async (user: User) => {
     try {
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
