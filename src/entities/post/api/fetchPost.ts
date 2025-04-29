@@ -1,5 +1,5 @@
-import Post from "../../../features/posts/model/type.ts"
-import User from "../../../features/user/model/type.ts"
+import Post from "../model/type.ts"
+import User from "../../user/model/type.ts"
 export interface PostParams {
   limit: number
   skip: number
