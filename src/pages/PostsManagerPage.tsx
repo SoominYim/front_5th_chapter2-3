@@ -10,8 +10,6 @@ import PostsPagination from "../features/filters/ui/PostPagination.tsx"
 import { useDeletePost } from "../features/posts/api/useDeletePost.ts"
 import FilterWrapper from "../features/filters/ui/filters/FilterWrapper.tsx"
 import { useCreateComment } from "../entities/comment/api/createComments.ts"
-import Post from "../entities/post/model/type.ts"
-import User from "../entities/user/model/type.ts"
 // Store
 import usePostsStore from "../features/posts/model/usePostsStore.ts"
 import useCommentStore from "../features/comments/model/useCommentStore.ts"
@@ -191,6 +189,18 @@ const PostsManager = () => {
 
 
 
+  // 댓글 가져오기
+  const fetchComments = async (postId) => {
+    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
+    try {
+      const response = await fetch(`/api/comments/post/${postId}`)
+      const data = await response.json()
+      setComments(postId, data.comments)
+    } catch (error) {
+      console.error("댓글 가져오기 오류:", error)
+    }
+  }
+
 
 
   // 댓글 업데이트
@@ -220,14 +230,14 @@ const PostsManager = () => {
 
 
   // 게시물 상세 보기
-  const openPostDetail = (post: Post) => {
+  const openPostDetail = (post) => {
     setSelectedPost(post)
-    setComments(post.id, comments[post.id])
+    fetchComments(post.id)
     setShowPostDetailDialog(true)
   }
 
   // 사용자 모달 열기
-  const openUserModal = async (user: User) => {
+  const openUserModal = async (user) => {
     try {
       const response = await fetch(`/api/users/${user.id}`)
       const userData = await response.json()
