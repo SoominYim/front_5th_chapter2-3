@@ -11,19 +11,21 @@ import {
 export interface PostsQueryParams extends PostParams {
   tag?: string
   searchQuery?: string
+  sortBy?: string
+  sortOrder?: string
 }
 
 // 게시물 쿼리 훅
 export function usePostsQuery(params: PostsQueryParams) {
-  const { tag, limit, skip, searchQuery } = params
+  const { tag, limit, skip, searchQuery, sortBy, sortOrder } = params
 
   return useQuery({
-    queryKey: ["posts", { tag, limit, skip, searchQuery }],
+    queryKey: ["posts", { tag, limit, skip, searchQuery, sortBy, sortOrder }],
     queryFn: () => {
       if (searchQuery) {
-        return searchPosts(searchQuery)
+        return searchPosts(searchQuery, { sortBy, sortOrder })
       }
-      return tag ? fetchPostsByTag({ tag, limit, skip } as TagParams) : fetchPosts({ limit, skip })
+      return tag ? fetchPostsByTag({ tag, limit, skip, sortBy, sortOrder } as TagParams) : fetchPosts({ limit, skip, sortBy, sortOrder })
     },
   })
 }

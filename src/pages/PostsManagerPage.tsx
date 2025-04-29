@@ -143,7 +143,7 @@ const PostsManager = () => {
   const initialLimit = getParam("limit", 10)
   const initialSearchQuery = getParam("search", "")
   const initialSortBy = getParam("sortBy", "")
-  const initialSortOrder = getParam("sortOrder", "asc")
+  const initialSortOrder = getParam("order", "asc")
   const initialSelectedTag = getParam("tag", "")
 
   // 초기값으로 상태 설정
@@ -162,6 +162,8 @@ const PostsManager = () => {
     limit,
     tag: selectedTag,
     searchQuery: searchQuery,
+    sortBy,
+    sortOrder,
   })
 
   const { data: tagsData } = useTagsQuery()
@@ -429,8 +431,7 @@ const PostsManager = () => {
               value={selectedTag}
               onValueChange={(value) => {
                 setSelectedTag(value)
-                fetchPostsByTag({ tag: value, limit, skip })
-                updateURL({ tag: value })
+                setSkip(0)
               }}
             >
               <SelectTrigger className="w-[180px]">
@@ -445,7 +446,13 @@ const PostsManager = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select 
+              value={sortBy} 
+              onValueChange={(value) => {
+                setSortBy(value)
+                setSkip(0)
+              }}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 기준" />
               </SelectTrigger>
@@ -456,7 +463,13 @@ const PostsManager = () => {
                 <SelectItem value="reactions">반응</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={sortOrder} onValueChange={setSortOrder}>
+            <Select 
+              value={sortOrder} 
+              onValueChange={(value) => {
+                setSortOrder(value)
+                setSkip(0)
+              }}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="정렬 순서" />
               </SelectTrigger>
