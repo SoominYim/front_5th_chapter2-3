@@ -5,6 +5,7 @@ interface Post {
   content: string
   createdAt: string
   updatedAt: string
+  body: string
 }
 
 export default Post
