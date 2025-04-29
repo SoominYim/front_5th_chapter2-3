@@ -6,7 +6,7 @@ import {
   fetchTags,
   PostParams,
   TagParams,
-} from "../../../entities/posts/api/postsApi"
+} from "../../../entities/post/api/fetchPost"
 
 export interface PostsQueryParams extends PostParams {
   tag?: string

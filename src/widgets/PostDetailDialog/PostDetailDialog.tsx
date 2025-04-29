@@ -1,46 +1,123 @@
-import { useShallow } from "zustand/shallow"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../shared/ui/Dialog"
-import useUserStore from "../../features/user/model/useUserStore"
+import usePostsStore from "../../features/posts/model/usePostsStore"
+import useFilterStore from "../../features/filters/model/useFilterStore"
+import useCommentStore from "../../features/comments/model/useCommentStore"
+import CommentsList from "../../features/comments/ui/CommentsList"
+import highlightText from "../../shared/lib/util/highlightText"
+
+import { useShallow } from "zustand/shallow"
+import React, { useEffect } from "react"
 
 const PostDetailDialog = () => {
-  const { showUserModal, setShowUserModal, selectedUser } = useUserStore(
+  const { showPostDetailDialog, setShowPostDetailDialog, selectedPost } = usePostsStore(
     useShallow((state) => ({
-      showUserModal: state.showUserModal,
-      setShowUserModal: state.setShowUserModal,
-      selectedUser: state.selectedUser,
+      showPostDetailDialog: state.showPostDetailDialog,
+      setShowPostDetailDialog: state.setShowPostDetailDialog,
+      selectedPost: state.selectedPost,
     })),
   )
 
+  const { searchQuery } = useFilterStore(
+    useShallow((state) => ({
+      searchQuery: state.searchQuery,
+    })),
+  )
+
+  const {
+    comments,
+    setComments,
+    setSelectedComment,
+    setNewComment,
+    setShowAddCommentDialog,
+    setShowEditCommentDialog,
+  } = useCommentStore(
+    useShallow((state) => ({
+      comments: state.comments,
+      setComments: state.setComments,
+      setSelectedComment: state.setSelectedComment,
+      setNewComment: state.setNewComment,
+      setShowAddCommentDialog: state.setShowAddCommentDialog,
+      setShowEditCommentDialog: state.setShowEditCommentDialog,
+    })),
+  )
+
+  // 댓글 관련 함수들
+  const fetchComments = async (postId: number) => {
+    if (comments[postId]) return
+    try {
+      const response = await fetch(`/api/comments/post/${postId}`)
+      const data = await response.json()
+      setComments(postId, data.comments)
+    } catch (error) {
+      console.error("댓글 가져오기 오류:", error)
+    }
+  }
+
+  const likeComment = async (id: number, postId: number) => {
+    try {
+      const response = await fetch(`/api/comments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          likes: comments[postId].find((c) => c.id === id)?.likes
+            ? comments[postId].find((c) => c.id === id)!.likes + 1
+            : 1,
+        }),
+      })
+      const data = await response.json()
+      setComments(
+        postId,
+        comments[postId].map((comment) =>
+          comment.id === data.id ? { ...data, likes: comment.likes ? comment.likes + 1 : 1 } : comment,
+        ),
+      )
+    } catch (error) {
+      console.error("댓글 좋아요 오류:", error)
+    }
+  }
+
+  const deleteComment = async (id: number, postId: number) => {
+    try {
+      await fetch(`/api/comments/${id}`, {
+        method: "DELETE",
+      })
+      setComments(
+        postId,
+        comments[postId].filter((comment) => comment.id !== id),
+      )
+    } catch (error) {
+      console.error("댓글 삭제 오류:", error)
+    }
+  }
+
+  // selectedPost가 변경될 때 댓글 가져오기
+  useEffect(() => {
+    if (selectedPost?.id) {
+      fetchComments(selectedPost.id)
+    }
+  }, [selectedPost?.id])
+
   return (
-    <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-      <DialogContent>
+    <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>사용자 정보</DialogTitle>
+          <DialogTitle>{highlightText(selectedPost?.title || "", searchQuery)}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
-          <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
-          <div className="space-y-2">
-            <p>
-              <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
-            </p>
-            <p>
-              <strong>나이:</strong> {selectedUser?.age}
-            </p>
-            <p>
-              <strong>이메일:</strong> {selectedUser?.email}
-            </p>
-            <p>
-              <strong>전화번호:</strong> {selectedUser?.phone}
-            </p>
-            <p>
-              <strong>주소:</strong> {selectedUser?.address?.address}, {selectedUser?.address?.city},{" "}
-              {selectedUser?.address?.state}
-            </p>
-            <p>
-              <strong>직장:</strong> {selectedUser?.company?.name} - {selectedUser?.company?.title}
-            </p>
-          </div>
+          <p>{highlightText(selectedPost?.body || "", searchQuery)}</p>
+          {selectedPost?.id && (
+            <CommentsList
+              postId={selectedPost.id}
+              comments={comments}
+              searchQuery={searchQuery}
+              setNewComment={setNewComment}
+              setShowAddCommentDialog={setShowAddCommentDialog}
+              likeComment={likeComment}
+              setSelectedComment={setSelectedComment}
+              setShowEditCommentDialog={setShowEditCommentDialog}
+              deleteComment={deleteComment}
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>

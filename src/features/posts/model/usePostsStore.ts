@@ -33,7 +33,13 @@ interface PostState {
 const usePostsStore = create<PostState>((set) => ({
   total: 0,
   posts: [],
-  selectedPost: null,
+  selectedPost: {
+    id: 0,
+    title: "",
+    body: "",
+    tags: [],
+    userId: 0,
+  },
   tags: [],
   selectedTag: "",
   newPost: { title: "", body: "", userId: 1 },
