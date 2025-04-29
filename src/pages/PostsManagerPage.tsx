@@ -2,6 +2,15 @@ import { useEffect, useState } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useLocation, useNavigate } from "react-router-dom"
 import PostsTable from "../features/posts/ui/PostsTable.tsx"
+
+// Store
+import usePostsStore from "../features/posts/model/usePostsStore.ts"
+import useCommentStore from "../features/comments/model/useCommentStore.ts"
+import useGlobalStore from "../shared/model/useGlobalStore.ts"
+import useFilterStore from "../features/filters/model/useFilterStore.ts"
+import useUserStore from "../features/user/model/useUserStore.ts"
+
+// UI
 import {
   Button,
   Card,
@@ -24,31 +33,52 @@ import {
 const PostsManager = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
+
+  // global 상태 관리
+  const { loading, setLoading } = useGlobalStore()
+
+  // posts 상태 관리
+  const {
+    total,
+    posts,
+    selectedPost,
+    tags,
+    selectedTag,
+    newPost,
+    showAddDialog,
+    showEditDialog,
+    setTotal,
+    setPosts,
+    setSelectedPost,
+    setTags,
+    setSelectedTag,
+    setNewPost,
+    setShowAddDialog,
+    setShowEditDialog,
+  } = usePostsStore()
+
+  // comments 상태 관리
+  const {
+    comments,
+    selectedComment,
+    newComment,
+    showAddCommentDialog,
+    showEditCommentDialog,
+    setComments,
+    setSelectedComment,
+    setNewComment,
+    setShowAddCommentDialog,
+    setShowEditCommentDialog,
+  } = useCommentStore()
+
+  // user 상태 관리
+  const { showUserModal, selectedUser, setShowUserModal, setSelectedUser } = useUserStore()
+
+  // filters 상태 관리
+  const { searchQuery, sortBy, sortOrder, skip, limit, setSearchQuery, setSortBy, setSortOrder, setSkip, setLimit } =
+    useFilterStore()
 
   // 상태 관리
-  const [posts, setPosts] = useState([])
-  const [total, setTotal] = useState(0)
-  const [skip, setSkip] = useState(parseInt(queryParams.get("skip") || "0"))
-  const [limit, setLimit] = useState(parseInt(queryParams.get("limit") || "10"))
-  const [searchQuery, setSearchQuery] = useState(queryParams.get("search") || "")
-  const [selectedPost, setSelectedPost] = useState(null)
-  const [sortBy, setSortBy] = useState(queryParams.get("sortBy") || "")
-  const [sortOrder, setSortOrder] = useState(queryParams.get("sortOrder") || "asc")
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
-  const [newPost, setNewPost] = useState({ title: "", body: "", userId: 1 })
-  const [loading, setLoading] = useState(false)
-  const [tags, setTags] = useState([])
-  const [selectedTag, setSelectedTag] = useState(queryParams.get("tag") || "")
-  const [comments, setComments] = useState({})
-  const [selectedComment, setSelectedComment] = useState(null)
-  const [newComment, setNewComment] = useState({ body: "", postId: null, userId: 1 })
-  const [showAddCommentDialog, setShowAddCommentDialog] = useState(false)
-  const [showEditCommentDialog, setShowEditCommentDialog] = useState(false)
-  const [showPostDetailDialog, setShowPostDetailDialog] = useState(false)
-  const [showUserModal, setShowUserModal] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
 
   // URL 업데이트 함수
   const updateURL = () => {
