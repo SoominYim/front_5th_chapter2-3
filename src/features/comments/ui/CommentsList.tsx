@@ -1,38 +1,36 @@
 import React from "react"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
+import { useShallow } from "zustand/react/shallow"
 import { Button } from "../../../shared/ui/Button"
 import highlightText from "../../../shared/lib/util/highlightText"
-import  Comment  from "../../../entities/comment/model/type"
+import useFilterStore from "../../filters/model/useFilterStore"
+import useCommentStore from "../model/useCommentStore"
+import Comment from "../../../entities/comment/model/type"
 
 interface CommentsListProps {
   postId: number
-  comments: Record<number, Comment[]>
-  searchQuery: string
-  setNewComment: (
-    updater: (prev: { body: string; postId: number | null; userId: number }) => {
-      body: string
-      postId: number
-      userId: number
-    },
-  ) => void
-  setShowAddCommentDialog: (show: boolean) => void
   likeComment: (id: number, postId: number) => void
-  setSelectedComment: (comment: Comment) => void
-  setShowEditCommentDialog: (show: boolean) => void
   deleteComment: (id: number, postId: number) => void
 }
 
+
+
 const CommentsList: React.FC<CommentsListProps> = ({
   postId,
-  comments,
-  searchQuery,
-  setNewComment,
-  setShowAddCommentDialog,
   likeComment,
-  setSelectedComment,
-  setShowEditCommentDialog,
   deleteComment,
 }) => {
+  const { searchQuery } = useFilterStore(useShallow((state) => ({
+    searchQuery: state.searchQuery,
+  })))
+  const { comments,  setSelectedComment, setNewComment, setShowAddCommentDialog, setShowEditCommentDialog } = useCommentStore(useShallow((state) => ({
+    comments: state.comments,
+    setComments: state.setComments,
+    setSelectedComment: state.setSelectedComment,
+    setNewComment: state.setNewComment,
+    setShowAddCommentDialog: state.setShowAddCommentDialog,
+    setShowEditCommentDialog: state.setShowEditCommentDialog,
+  })))
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
@@ -40,7 +38,7 @@ const CommentsList: React.FC<CommentsListProps> = ({
         <Button
           size="sm"
           onClick={() => {
-            setNewComment((prev) => ({ ...prev, postId }))
+            setNewComment({ body: "", postId: postId, userId: 1, user: { username: "", id: 1 }, likes: 0 })
             setShowAddCommentDialog(true)
           }}
         >
@@ -56,7 +54,7 @@ const CommentsList: React.FC<CommentsListProps> = ({
               <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
             </div>
             <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id, postId)}>
+              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id as number, postId)}>
                 <ThumbsUp className="w-3 h-3" />
                 <span className="ml-1 text-xs">{comment.likes}</span>
               </Button>
@@ -70,7 +68,7 @@ const CommentsList: React.FC<CommentsListProps> = ({
               >
                 <Edit2 className="w-3 h-3" />
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id, postId)}>
+              <Button variant="ghost" size="sm" onClick={() => deleteComment(comment.id as number, postId)}>
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>

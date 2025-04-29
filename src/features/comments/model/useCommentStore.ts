@@ -5,6 +5,11 @@ interface Comment {
   body: string
   postId: number | null
   userId: number
+  user: {
+    username: string
+    id: number
+  }
+  likes: number
 }
 
 interface CommentState {
@@ -21,10 +26,11 @@ interface CommentState {
   setShowEditCommentDialog: (show: boolean) => void
 }
 
-const useCommentsStore = create<CommentState>((set) => ({
-  comments: {},
+const useCommentStore = create<CommentState>((set) => ({
+  comments: {
+  },
   selectedComment: null,
-  newComment: { body: "", postId: null, userId: 1 },
+  newComment: { body: "", postId: null, userId: 1, user: { username: "", id: 1 }, likes: 0 },
   showAddCommentDialog: false,
   showEditCommentDialog: false,
 
@@ -38,4 +44,4 @@ const useCommentsStore = create<CommentState>((set) => ({
   setShowEditCommentDialog: (show) => set({ showEditCommentDialog: show }),
 }))
 
-export default useCommentsStore
+export default useCommentStore

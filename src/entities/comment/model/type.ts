@@ -4,6 +4,7 @@
   postId: number
   user: {
     username: string
+    id: number
   }
   likes: number
 }
