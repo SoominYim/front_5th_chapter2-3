@@ -1,3 +1,4 @@
+import { useShallow } from "zustand/shallow"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui/Dialog"
 import { Input } from "../../../shared/ui/Input"
 import { Textarea } from "../../../shared/ui/Textarea"
@@ -6,7 +7,14 @@ import usePostsStore from "../model/usePostsStore"
 import { useUpdatePost } from "../api/useUpdatePost"
 
 const EditPostDialog = () => {
-  const { showEditDialog, setShowEditDialog, selectedPost, setSelectedPost } = usePostsStore()
+  const { showEditDialog, setShowEditDialog, selectedPost, setSelectedPost } = usePostsStore(
+    useShallow((state) => ({
+      showEditDialog: state.showEditDialog,
+      setShowEditDialog: state.setShowEditDialog,
+      selectedPost: state.selectedPost,
+      setSelectedPost: state.setSelectedPost,
+    })),
+  )
   const { updatePost } = useUpdatePost()
 
   // 게시물 수정 처리하는 함수

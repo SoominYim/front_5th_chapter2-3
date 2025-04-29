@@ -22,7 +22,7 @@ interface PostsTableProps {
   searchQuery: string
   selectedTag: string
   setSelectedTag: (tag: string) => void
-  updateURL: () => void
+  updateURL: (params: { [key: string]: string | number | boolean | undefined | null }) => void
   openUserModal: (author: Post["author"]) => void
   openPostDetail: (post: Post) => void
   setSelectedPost: (post: Post) => void
@@ -74,7 +74,7 @@ const PostsTable: React.FC<PostsTableProps> = ({
                       }`}
                       onClick={() => {
                         setSelectedTag(tag)
-                        updateURL()
+                        updateURL({ tag })
                       }}
                     >
                       {tag}

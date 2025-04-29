@@ -1,8 +1,10 @@
 import { useEffect } from "react"
 import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
+import { useShallow } from "zustand/shallow"
 import PostsTable from "../features/posts/ui/PostsTable.tsx"
 import AddPostDialog from "../features/posts/ui/AddPostDialog.tsx"
-
+import EditPostDialog from "../features/posts/ui/EditPostDialog.tsx"
+import PostDetailDialog from "../widgets/PostDetailDialog/PostDetailDialog.tsx"
 // Store
 import usePostsStore from "../features/posts/model/usePostsStore.ts"
 import useCommentStore from "../features/comments/model/useCommentStore.ts"
@@ -11,7 +13,6 @@ import useFilterStore from "../features/filters/model/useFilterStore.ts"
 import useUserStore from "../features/user/model/useUserStore.ts"
 import { useURLParams } from "../shared/lib/hooks/useURLParams.ts"
 import { usePostsQuery, useTagsQuery } from "../features/posts/model/queries.ts"
-import { useUpdatePost } from "../features/posts/api/useUpdatePost.ts"
 
 // UI
 import {
@@ -32,11 +33,11 @@ import {
   SelectValue,
   Textarea,
 } from "../shared/ui"
-import { useShallow } from "zustand/shallow"
+
+// util
+import highlightText from "../shared/lib/util/highlightText.tsx"
 
 const PostsManager = () => {
-  const { updatePost } = useUpdatePost()
-
   // global 상태 관리
   const { loading, setLoading } = useGlobalStore()
 
@@ -47,7 +48,6 @@ const PostsManager = () => {
     selectedPost,
     tags,
     selectedTag,
-    showEditDialog,
     showPostDetailDialog,
     setTotal,
     setPosts,
@@ -57,7 +57,24 @@ const PostsManager = () => {
     setShowAddDialog,
     setShowEditDialog,
     setShowPostDetailDialog,
-  } = usePostsStore()
+  } = usePostsStore(
+    useShallow((state) => ({
+      total: state.total,
+      posts: state.posts,
+      selectedPost: state.selectedPost,
+      tags: state.tags,
+      selectedTag: state.selectedTag,
+      showPostDetailDialog: state.showPostDetailDialog,
+      setTotal: state.setTotal,
+      setPosts: state.setPosts,
+      setSelectedPost: state.setSelectedPost,
+      setTags: state.setTags,
+      setSelectedTag: state.setSelectedTag,
+      setShowAddDialog: state.setShowAddDialog,
+      setShowEditDialog: state.setShowEditDialog,
+      setShowPostDetailDialog: state.setShowPostDetailDialog,
+    })),
+  )
 
   // comments 상태 관리
   const {
@@ -353,21 +370,6 @@ const PostsManager = () => {
     }
   }
 
-  // 하이라이트 함수 추가
-  const highlightText = (text: string, highlight: string) => {
-    if (!text) return null
-    if (!highlight.trim()) {
-      return <span>{text}</span>
-    }
-    const regex = new RegExp(`(${highlight})`, "gi")
-    const parts = text.split(regex)
-    return (
-      <span>
-        {parts.map((part, i) => (regex.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>))}
-      </span>
-    )
-  }
-
   // 게시물 테이블 렌더링
   const renderPostTable = () => (
     <PostsTable
@@ -535,28 +537,7 @@ const PostsManager = () => {
       {/* 게시물 추가 대화상자 */}
       <AddPostDialog />
       {/* 게시물 수정 대화상자 */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>게시물 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="제목"
-              value={selectedPost?.title || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, title: e.target.value })}
-            />
-            <Textarea
-              rows={15}
-              placeholder="내용"
-              value={selectedPost?.body || ""}
-              onChange={(e) => setSelectedPost({ ...selectedPost, body: e.target.value })}
-            />
-            <Button onClick={updatePost}>게시물 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
+      <EditPostDialog />
       {/* 댓글 추가 대화상자 */}
       <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
         <DialogContent>
@@ -605,38 +586,7 @@ const PostsManager = () => {
       </Dialog>
 
       {/* 사용자 모달 */}
-      <Dialog open={showUserModal} onOpenChange={setShowUserModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>사용자 정보</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <img src={selectedUser?.image} alt={selectedUser?.username} className="w-24 h-24 rounded-full mx-auto" />
-            <h3 className="text-xl font-semibold text-center">{selectedUser?.username}</h3>
-            <div className="space-y-2">
-              <p>
-                <strong>이름:</strong> {selectedUser?.firstName} {selectedUser?.lastName}
-              </p>
-              <p>
-                <strong>나이:</strong> {selectedUser?.age}
-              </p>
-              <p>
-                <strong>이메일:</strong> {selectedUser?.email}
-              </p>
-              <p>
-                <strong>전화번호:</strong> {selectedUser?.phone}
-              </p>
-              <p>
-                <strong>주소:</strong> {selectedUser?.address?.address}, {selectedUser?.address?.city},{" "}
-                {selectedUser?.address?.state}
-              </p>
-              <p>
-                <strong>직장:</strong> {selectedUser?.company?.name} - {selectedUser?.company?.title}
-              </p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PostDetailDialog />
     </Card>
   )
 }

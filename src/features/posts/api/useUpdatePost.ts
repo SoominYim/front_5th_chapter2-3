@@ -1,8 +1,15 @@
 import usePostsStore from "../model/usePostsStore"
-
+import { useShallow } from "zustand/shallow"
 // 게시물 업데이트
 export const useUpdatePost = () => {
-  const { selectedPost, posts, setPosts, setShowEditDialog } = usePostsStore()
+  const { selectedPost, posts, setPosts, setShowEditDialog } = usePostsStore(
+    useShallow((state) => ({
+      selectedPost: state.selectedPost,
+      posts: state.posts,
+      setPosts: state.setPosts,
+      setShowEditDialog: state.setShowEditDialog,
+    })),
+  )
 
   const updatePost = async () => {
     try {

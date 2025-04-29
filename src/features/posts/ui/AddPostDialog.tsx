@@ -1,12 +1,19 @@
+import { useShallow } from "zustand/shallow"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../shared/ui/Dialog"
 import { Input } from "../../../shared/ui/Input"
 import { Textarea } from "../../../shared/ui/Textarea"
 import { Button } from "../../../shared/ui/Button"
 import usePostsStore from "../model/usePostsStore"
 import { useCreatePost } from "../../../entities/post/api/createPost"
-
 const AddPostDialog = () => {
-  const { newPost, showAddDialog, setNewPost, setShowAddDialog } = usePostsStore()
+  const { newPost, showAddDialog, setNewPost, setShowAddDialog } = usePostsStore(
+    useShallow((state) => ({
+      newPost: state.newPost,
+      showAddDialog: state.showAddDialog,
+      setNewPost: state.setNewPost,
+      setShowAddDialog: state.setShowAddDialog,
+    })),
+  )
   const { addPost } = useCreatePost()
 
   return (
