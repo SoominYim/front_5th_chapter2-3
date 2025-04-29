@@ -8,11 +8,18 @@ interface Post {
   userId?: number
 }
 
+interface Tag {
+  id: string
+  name: string
+  slug: string
+  url: string
+}
+
 interface PostState {
   total: number
   posts: Post[]
   selectedPost: Post | null
-  tags: string[]
+  tags: Tag[]
   selectedTag: string
   newPost: Post
   showAddDialog: boolean
@@ -22,7 +29,7 @@ interface PostState {
   setTotal: (total: number) => void
   setPosts: (posts: Post[]) => void
   setSelectedPost: (post: Post | null) => void
-  setTags: (tags: string[]) => void
+  setTags: (tags: Tag[]) => void
   setSelectedTag: (tag: string) => void
   setNewPost: (post: Post) => void
   setShowAddDialog: (show: boolean) => void

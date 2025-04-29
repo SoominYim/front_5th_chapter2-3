@@ -2,16 +2,7 @@ import React from "react"
 import { Edit2, Plus, ThumbsUp, Trash2 } from "lucide-react"
 import { Button } from "../../../shared/ui/Button"
 import highlightText from "../../../shared/lib/util/highlightText"
-
-interface Comment {
-  id: number
-  body: string
-  postId: number
-  user: {
-    username: string
-  }
-  likes: number
-}
+import  Comment  from "../../../entities/comment/model/type"
 
 interface CommentsListProps {
   postId: number
