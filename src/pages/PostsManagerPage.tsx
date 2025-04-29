@@ -9,6 +9,8 @@ import useCommentStore from "../features/comments/model/useCommentStore.ts"
 import useGlobalStore from "../shared/model/useGlobalStore.ts"
 import useFilterStore from "../features/filters/model/useFilterStore.ts"
 import useUserStore from "../features/user/model/useUserStore.ts"
+import { useURLParams } from "../shared/lib/hooks/useURLParams.ts"
+import { usePostsQuery, useTagsQuery } from "../features/posts/model/queries.ts"
 
 // UI
 import {
@@ -31,9 +33,6 @@ import {
 } from "../shared/ui"
 
 const PostsManager = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-
   // global 상태 관리
   const { loading, setLoading } = useGlobalStore()
 
@@ -47,6 +46,7 @@ const PostsManager = () => {
     newPost,
     showAddDialog,
     showEditDialog,
+    showPostDetailDialog,
     setTotal,
     setPosts,
     setSelectedPost,
@@ -55,6 +55,7 @@ const PostsManager = () => {
     setNewPost,
     setShowAddDialog,
     setShowEditDialog,
+    setShowPostDetailDialog,
   } = usePostsStore()
 
   // comments 상태 관리
@@ -78,18 +79,69 @@ const PostsManager = () => {
   const { searchQuery, sortBy, sortOrder, skip, limit, setSearchQuery, setSortBy, setSortOrder, setSkip, setLimit } =
     useFilterStore()
 
-  // 상태 관리
+  // URL 파라미터 훅 사용
+  const { getParam, updateURL } = useURLParams()
 
-  // URL 업데이트 함수
-  const updateURL = () => {
-    const params = new URLSearchParams()
-    if (skip) params.set("skip", skip.toString())
-    if (limit) params.set("limit", limit.toString())
-    if (searchQuery) params.set("search", searchQuery)
-    if (sortBy) params.set("sortBy", sortBy)
-    if (sortOrder) params.set("sortOrder", sortOrder)
-    if (selectedTag) params.set("tag", selectedTag)
-    navigate(`?${params.toString()}`)
+  // URL에서 초기 값 가져오기
+  const initialSkip = getParam("skip", 0)
+  const initialLimit = getParam("limit", 10)
+  const initialSearchQuery = getParam("search", "")
+  const initialSortBy = getParam("sortBy", "")
+  const initialSortOrder = getParam("sortOrder", "asc")
+  const initialSelectedTag = getParam("tag", "")
+
+  // 초기값으로 상태 설정
+  useEffect(() => {
+    setSkip(initialSkip)
+    setLimit(initialLimit)
+    setSearchQuery(initialSearchQuery)
+    setSortBy(initialSortBy)
+    setSortOrder(initialSortOrder)
+    setSelectedTag(initialSelectedTag)
+  }, []) // 컴포넌트 마운트 시 한 번만 실행
+
+  // React Query 사용
+  const { data: postsData, isLoading } = usePostsQuery({
+    skip,
+    limit,
+    tag: selectedTag,
+    searchQuery: searchQuery,
+  })
+
+  const { data: tagsData } = useTagsQuery()
+
+  // 데이터가 로드되면 상태 업데이트
+  useEffect(() => {
+    if (postsData) {
+      setPosts(postsData.posts)
+      setTotal(postsData.total)
+    }
+
+    if (tagsData) {
+      setTags(tagsData)
+    }
+
+    setLoading(isLoading)
+  }, [postsData, tagsData, isLoading])
+
+  // URL 파라미터가 변경될 때마다 자동으로 URL 업데이트
+  useEffect(() => {
+    updateURL({
+      skip,
+      limit,
+      search: searchQuery,
+      sortBy,
+      sortOrder,
+      tag: selectedTag,
+    })
+  }, [skip, limit, sortBy, sortOrder, selectedTag, searchQuery, updateURL])
+
+  // 검색 함수 간소화
+  const handleSearch = () => {
+    if (searchQuery) {
+      // 검색 시 결과의 첫 페이지로 이동
+      setSkip(0)
+    }
   }
 
   // 게시물 가져오기
@@ -329,29 +381,6 @@ const PostsManager = () => {
     }
   }
 
-  useEffect(() => {
-    fetchTags()
-  }, [])
-
-  useEffect(() => {
-    if (selectedTag) {
-      fetchPostsByTag(selectedTag)
-    } else {
-      fetchPosts()
-    }
-    updateURL()
-  }, [skip, limit, sortBy, sortOrder, selectedTag])
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    setSkip(parseInt(params.get("skip") || "0"))
-    setLimit(parseInt(params.get("limit") || "10"))
-    setSearchQuery(params.get("search") || "")
-    setSortBy(params.get("sortBy") || "")
-    setSortOrder(params.get("sortOrder") || "asc")
-    setSelectedTag(params.get("tag") || "")
-  }, [location.search])
-
   // 하이라이트 함수 추가
   const highlightText = (text: string, highlight: string) => {
     if (!text) return null
@@ -454,7 +483,7 @@ const PostsManager = () => {
                   className="pl-8"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && searchPosts()}
+                  onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                 />
               </div>
             </div>
