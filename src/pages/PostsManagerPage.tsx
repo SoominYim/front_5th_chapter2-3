@@ -32,6 +32,7 @@ import {
   SelectValue,
   Textarea,
 } from "../shared/ui"
+import { useShallow } from "zustand/shallow"
 
 const PostsManager = () => {
   const { updatePost } = useUpdatePost()
@@ -70,14 +71,47 @@ const PostsManager = () => {
     setNewComment,
     setShowAddCommentDialog,
     setShowEditCommentDialog,
-  } = useCommentStore()
+  } = useCommentStore(
+    useShallow((state) => ({
+      comments: state.comments,
+      selectedComment: state.selectedComment,
+      newComment: state.newComment,
+      showAddCommentDialog: state.showAddCommentDialog,
+      showEditCommentDialog: state.showEditCommentDialog,
+      setComments: state.setComments,
+      setSelectedComment: state.setSelectedComment,
+      setNewComment: state.setNewComment,
+      setShowAddCommentDialog: state.setShowAddCommentDialog,
+      setShowEditCommentDialog: state.setShowEditCommentDialog,
+    })),
+  )
 
   // user 상태 관리
-  const { showUserModal, selectedUser, setShowUserModal, setSelectedUser } = useUserStore()
+  const { showUserModal, selectedUser, setShowUserModal, setSelectedUser } = useUserStore(
+    useShallow((state) => ({
+      showUserModal: state.showUserModal,
+      selectedUser: state.selectedUser,
+      setShowUserModal: state.setShowUserModal,
+      setSelectedUser: state.setSelectedUser,
+    })),
+  )
 
   // filters 상태 관리
   const { searchQuery, sortBy, sortOrder, skip, limit, setSearchQuery, setSortBy, setSortOrder, setSkip, setLimit } =
-    useFilterStore()
+    useFilterStore(
+      useShallow((state) => ({
+        searchQuery: state.searchQuery,
+        sortBy: state.sortBy,
+        sortOrder: state.sortOrder,
+        skip: state.skip,
+        limit: state.limit,
+        setSearchQuery: state.setSearchQuery,
+        setSortBy: state.setSortBy,
+        setSortOrder: state.setSortOrder,
+        setSkip: state.setSkip,
+        setLimit: state.setLimit,
+      })),
+    )
 
   // URL 파라미터 훅 사용
   const { getParam, updateURL } = useURLParams()
