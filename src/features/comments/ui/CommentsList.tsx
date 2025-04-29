@@ -6,19 +6,17 @@ import highlightText from "../../../shared/lib/util/highlightText"
 import useFilterStore from "../../filters/model/useFilterStore"
 import useCommentStore from "../model/useCommentStore"
 import Comment from "../../../entities/comment/model/type"
+import { deleteComment } from "../api/deleteComment"
+import { likeComment } from "../api/likeComment"
 
 interface CommentsListProps {
   postId: number
-  likeComment: (id: number, postId: number) => void
-  deleteComment: (id: number, postId: number) => void
 }
 
 
 
 const CommentsList: React.FC<CommentsListProps> = ({
   postId,
-  likeComment,
-  deleteComment,
 }) => {
   const { searchQuery } = useFilterStore(useShallow((state) => ({
     searchQuery: state.searchQuery,

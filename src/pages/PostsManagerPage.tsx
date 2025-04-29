@@ -6,11 +6,10 @@ import AddPostDialog from "../features/posts/ui/AddPostDialog.tsx"
 import EditPostDialog from "../features/posts/ui/EditPostDialog.tsx"
 import UserModal from "../widgets/userModal/UserModal.tsx"
 import CommentsList from "../features/comments/ui/CommentsList.tsx"
-import { fetchPostsByTag, searchPosts, fetchTags } from "../entities/post/api/fetchPost.ts"
 import PostsPagination from "../features/filters/ui/PostPagination.tsx"
 import { useDeletePost } from "../features/posts/api/useDeletePost.ts"
 import FilterWrapper from "../features/filters/ui/filters/FilterWrapper.tsx"
-
+import { useCreateComment } from "../entities/comment/api/createComments.ts"
 // Store
 import usePostsStore from "../features/posts/model/usePostsStore.ts"
 import useCommentStore from "../features/comments/model/useCommentStore.ts"
@@ -36,16 +35,16 @@ import {
 
 // util
 import highlightText from "../shared/lib/util/highlightText.tsx"
+
+// 게시물 관리 페이지
 const PostsManager = () => {
   // global 상태 관리
   const { loading, setLoading } = useGlobalStore()
 
   // posts 상태 관리
   const {
-    total,
     posts,
     selectedPost,
-    tags,
     selectedTag,
     showPostDetailDialog,
     setTotal,
@@ -130,6 +129,7 @@ const PostsManager = () => {
   // URL 파라미터 훅 사용
   const { getParam, updateURL } = useURLParams()
   const { deletePost } = useDeletePost()
+  const { addComment } = useCreateComment()
 
   // URL에서 초기 값 가져오기
   const initialSkip = getParam("skip", 0)
@@ -189,55 +189,7 @@ const PostsManager = () => {
 
 
 
-  // 댓글 가져오기
-  const fetchComments = async (postId) => {
-    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
-      setComments(postId, data.comments)
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
 
-  // 댓글 추가
-  const addComment = async () => {
-    try {
-      // postId가 null이면 중단
-      if (newComment.postId === null) {
-        console.error("댓글 추가 오류: 게시물 ID가 필요합니다.")
-        return
-      }
-
-      // 디버깅: 요청 데이터 로깅
-      console.log("댓글 추가 요청 데이터:", JSON.stringify(newComment, null, 2))
-
-      const response = await fetch("/api/comments/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newComment),
-      })
-
-      // 오류 응답 처리
-      if (!response.ok) {
-        const errorText = await response.text()
-        console.error("댓글 추가 오류 응답:", {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        })
-        throw new Error(`서버 오류: ${response.status} ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      setComments(data.postId, [...(comments[data.postId] || []), data])
-      setShowAddCommentDialog(false)
-      setNewComment({ body: "", postId: null, userId: 1 })
-    } catch (error) {
-      console.error("댓글 추가 오류:", error)
-    }
-  }
 
   // 댓글 업데이트
   const updateComment = async () => {
@@ -263,45 +215,7 @@ const PostsManager = () => {
     }
   }
 
-  // 댓글 삭제
-  const deleteComment = async (id: number, postId: number) => {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
-      setComments(
-        postId,
-        comments[postId].filter((comment) => comment.id !== id),
-      )
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
 
-  // 댓글 좋아요
-  const likeComment = async (id, postId) => {
-    try {
-      const comment = comments[postId]?.find((c) => c.id === id)
-      if (!comment) return
-
-      const likes = comment.likes || 0
-
-      const response = await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ likes: likes + 1 }),
-      })
-      const data = await response.json()
-      setComments(
-        postId,
-        comments[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: (comment.likes || 0) + 1 } : comment,
-        ),
-      )
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
 
   // 게시물 상세 보기
   const openPostDetail = (post) => {
@@ -344,8 +258,6 @@ const PostsManager = () => {
   const renderComments = (postId: number) => (
    <CommentsList
     postId={postId}
-    likeComment={likeComment}
-    deleteComment={deleteComment}
    />
   )
   return (
