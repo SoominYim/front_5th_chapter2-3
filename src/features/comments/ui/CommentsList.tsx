@@ -5,7 +5,6 @@ import { Button } from "../../../shared/ui/Button"
 import highlightText from "../../../shared/lib/util/highlightText"
 import useFilterStore from "../../filters/model/useFilterStore"
 import useCommentStore from "../model/useCommentStore"
-import Comment from "../../../entities/comment/model/type"
 import { deleteComment } from "../api/deleteComment"
 import { likeComment } from "../api/likeComment"
 
@@ -13,22 +12,23 @@ interface CommentsListProps {
   postId: number
 }
 
-
-
-const CommentsList: React.FC<CommentsListProps> = ({
-  postId,
-}) => {
-  const { searchQuery } = useFilterStore(useShallow((state) => ({
-    searchQuery: state.searchQuery,
-  })))
-  const { comments,  setSelectedComment, setNewComment, setShowAddCommentDialog, setShowEditCommentDialog } = useCommentStore(useShallow((state) => ({
-    comments: state.comments,
-    setComments: state.setComments,
-    setSelectedComment: state.setSelectedComment,
-    setNewComment: state.setNewComment,
-    setShowAddCommentDialog: state.setShowAddCommentDialog,
-    setShowEditCommentDialog: state.setShowEditCommentDialog,
-  })))
+const CommentsList: React.FC<CommentsListProps> = ({ postId }) => {
+  const { searchQuery } = useFilterStore(
+    useShallow((state) => ({
+      searchQuery: state.searchQuery,
+    })),
+  )
+  const { comments, setSelectedComment, setNewComment, setShowAddCommentDialog, setShowEditCommentDialog } =
+    useCommentStore(
+      useShallow((state) => ({
+        comments: state.comments,
+        setComments: state.setComments,
+        setSelectedComment: state.setSelectedComment,
+        setNewComment: state.setNewComment,
+        setShowAddCommentDialog: state.setShowAddCommentDialog,
+        setShowEditCommentDialog: state.setShowEditCommentDialog,
+      })),
+    )
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
@@ -48,7 +48,7 @@ const CommentsList: React.FC<CommentsListProps> = ({
         {comments[postId]?.map((comment) => (
           <div key={comment.id} className="flex items-center justify-between text-sm border-b pb-1">
             <div className="flex items-center space-x-2 overflow-hidden">
-              <span className="font-medium truncate">{comment.user.username}:</span>
+              <span className="font-medium truncate">{comment.user?.username}:</span>
               <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
             </div>
             <div className="flex items-center space-x-1">

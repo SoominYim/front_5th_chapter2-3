@@ -4,9 +4,11 @@ import useFilterStore from "../../features/filters/model/useFilterStore"
 import useCommentStore from "../../features/comments/model/useCommentStore"
 import CommentsList from "../../features/comments/ui/CommentsList"
 import highlightText from "../../shared/lib/util/highlightText"
-
+import { fetchComments } from "../../entities/comment/api/fetchComments"
+import { likeComment } from "../../features/comments/api/likeComment"
+import { deleteComment } from "../../features/comments/api/deleteComment"
 import { useShallow } from "zustand/shallow"
-import React, { useEffect } from "react"
+import { useEffect } from "react"
 
 const PostDetailDialog = () => {
   const { showPostDetailDialog, setShowPostDetailDialog, selectedPost } = usePostsStore(
@@ -23,72 +25,16 @@ const PostDetailDialog = () => {
     })),
   )
 
-  const {
-    comments,
-    setComments,
-    setSelectedComment,
-    setNewComment,
-    setShowAddCommentDialog,
-    setShowEditCommentDialog,
-  } = useCommentStore(
-    useShallow((state) => ({
-      comments: state.comments,
-      setComments: state.setComments,
-      setSelectedComment: state.setSelectedComment,
-      setNewComment: state.setNewComment,
-      setShowAddCommentDialog: state.setShowAddCommentDialog,
-      setShowEditCommentDialog: state.setShowEditCommentDialog,
-    })),
-  )
-
-  // 댓글 관련 함수들
-  const fetchComments = async (postId: number) => {
-    if (comments[postId]) return
-    try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
-      setComments(postId, data.comments)
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
-  const likeComment = async (id: number, postId: number) => {
-    try {
-      const response = await fetch(`/api/comments/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          likes: comments[postId].find((c) => c.id === id)?.likes
-            ? comments[postId].find((c) => c.id === id)!.likes + 1
-            : 1,
-        }),
-      })
-      const data = await response.json()
-      setComments(
-        postId,
-        comments[postId].map((comment) =>
-          comment.id === data.id ? { ...data, likes: comment.likes ? comment.likes + 1 : 1 } : comment,
-        ),
-      )
-    } catch (error) {
-      console.error("댓글 좋아요 오류:", error)
-    }
-  }
-
-  const deleteComment = async (id: number, postId: number) => {
-    try {
-      await fetch(`/api/comments/${id}`, {
-        method: "DELETE",
-      })
-      setComments(
-        postId,
-        comments[postId].filter((comment) => comment.id !== id),
-      )
-    } catch (error) {
-      console.error("댓글 삭제 오류:", error)
-    }
-  }
+  const { comments, setSelectedComment, setNewComment, setShowAddCommentDialog, setShowEditCommentDialog } =
+    useCommentStore(
+      useShallow((state) => ({
+        comments: state.comments,
+        setSelectedComment: state.setSelectedComment,
+        setNewComment: state.setNewComment,
+        setShowAddCommentDialog: state.setShowAddCommentDialog,
+        setShowEditCommentDialog: state.setShowEditCommentDialog,
+      })),
+    )
 
   // selectedPost가 변경될 때 댓글 가져오기
   useEffect(() => {

@@ -1,33 +1,10 @@
 import { create } from "zustand"
+import { UserState } from "../../../entities/user/model/type"
 
-interface UserState {
-  showUserModal: boolean
-  selectedUser: User | null
-  setShowUserModal: (show: boolean) => void
-  setSelectedUser: (user: User | null) => void
-}
-
-interface User {
-  image: string
-  username: string
-  firstName: string
-  lastName: string
-  age: number
-  email: string
-  phone: string
-  address: {
-    address: string
-    city: string
-    state: string
-  }
-  company: {
-    name: string
-    title: string
-  }
-}
 const useUserStore = create<UserState>((set) => ({
   showUserModal: false,
   selectedUser: {
+    id: 0,
     image: "",
     username: "",
     firstName: "",

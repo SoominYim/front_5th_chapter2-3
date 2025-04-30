@@ -1,37 +1,26 @@
 import { useEffect } from "react"
-import { Edit2, MessageSquare, Plus, Search, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react"
 import { useShallow } from "zustand/shallow"
 import PostsTable from "../features/posts/ui/PostsTable.tsx"
 import AddPostDialog from "../features/posts/ui/AddPostDialog.tsx"
 import EditPostDialog from "../features/posts/ui/EditPostDialog.tsx"
 import UserModal from "../widgets/userModal/UserModal.tsx"
-import CommentsList from "../features/comments/ui/CommentsList.tsx"
 import PostsPagination from "../features/filters/ui/PostPagination.tsx"
 import { useDeletePost } from "../features/posts/api/useDeletePost.ts"
 import FilterWrapper from "../features/filters/ui/filters/FilterWrapper.tsx"
-import { useCreateComment } from "../entities/comment/api/createComments.ts"
+import { fetchComments } from "../entities/comment/api/fetchComments.ts"
+import AddCommentDialog from "../features/comments/ui/AddCommentDialog.tsx"
+import EditCommentDialog from "../features/comments/ui/EditCommentDialog.tsx"
 // Store
 import usePostsStore from "../features/posts/model/usePostsStore.ts"
-import useCommentStore from "../features/comments/model/useCommentStore.ts"
 import useGlobalStore from "../shared/model/useGlobalStore.ts"
 import useFilterStore from "../features/filters/model/useFilterStore.ts"
-import useUserStore from "../features/user/model/useUserStore.ts"
 import { useURLParams } from "../shared/lib/hooks/useURLParams.ts"
 import { usePostsQuery, useTagsQuery } from "../features/posts/model/queries.ts"
-
+import PostDetailDialog from "../widgets/PostDetailDialog/PostDetailDialog.tsx"
+import useUserStore from "../features/user/model/useUserStore.ts"
+import PostsHeader from "../features/posts/ui/PostHeader.tsx"
 // UI
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  Textarea,
-} from "../shared/ui"
+import { Card, CardContent } from "../shared/ui"
 
 // util
 import highlightText from "../shared/lib/util/highlightText.tsx"
@@ -44,15 +33,12 @@ const PostsManager = () => {
   // posts 상태 관리
   const {
     posts,
-    selectedPost,
     selectedTag,
-    showPostDetailDialog,
     setTotal,
     setPosts,
     setSelectedPost,
     setTags,
     setSelectedTag,
-    setShowAddDialog,
     setShowEditDialog,
     setShowPostDetailDialog,
   } = usePostsStore(
@@ -74,41 +60,6 @@ const PostsManager = () => {
     })),
   )
 
-  // comments 상태 관리
-  const {
-    comments,
-    selectedComment,
-    newComment,
-    showAddCommentDialog,
-    showEditCommentDialog,
-    setComments,
-    setSelectedComment,
-    setNewComment,
-    setShowAddCommentDialog,
-    setShowEditCommentDialog,
-  } = useCommentStore(
-    useShallow((state) => ({
-      comments: state.comments,
-      selectedComment: state.selectedComment,
-      newComment: state.newComment,
-      showAddCommentDialog: state.showAddCommentDialog,
-      showEditCommentDialog: state.showEditCommentDialog,
-      setComments: state.setComments,
-      setSelectedComment: state.setSelectedComment,
-      setNewComment: state.setNewComment,
-      setShowAddCommentDialog: state.setShowAddCommentDialog,
-      setShowEditCommentDialog: state.setShowEditCommentDialog,
-    })),
-  )
-
-  // user 상태 관리
-  const { setShowUserModal, setSelectedUser } = useUserStore(
-    useShallow((state) => ({
-      setShowUserModal: state.setShowUserModal,
-      setSelectedUser: state.setSelectedUser,
-    })),
-  )
-
   // filters 상태 관리
   const { searchQuery, sortBy, sortOrder, skip, limit, setSearchQuery, setSortBy, setSortOrder, setSkip, setLimit } =
     useFilterStore(
@@ -126,10 +77,17 @@ const PostsManager = () => {
       })),
     )
 
+  // user 상태 관리
+  const { setSelectedUser, setShowUserModal } = useUserStore(
+    useShallow((state) => ({
+      setSelectedUser: state.setSelectedUser,
+      setShowUserModal: state.setShowUserModal,
+    })),
+  )
+
   // URL 파라미터 훅 사용
   const { getParam, updateURL } = useURLParams()
   const { deletePost } = useDeletePost()
-  const { addComment } = useCreateComment()
 
   // URL에서 초기 값 가져오기
   const initialSkip = getParam("skip", 0)
@@ -187,48 +145,6 @@ const PostsManager = () => {
     })
   }, [skip, limit, sortBy, sortOrder, selectedTag, searchQuery, updateURL])
 
-
-
-  // 댓글 가져오기
-  const fetchComments = async (postId) => {
-    if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-    try {
-      const response = await fetch(`/api/comments/post/${postId}`)
-      const data = await response.json()
-      setComments(postId, data.comments)
-    } catch (error) {
-      console.error("댓글 가져오기 오류:", error)
-    }
-  }
-
-
-
-  // 댓글 업데이트
-  const updateComment = async () => {
-    try {
-      if (!selectedComment?.id || !selectedComment?.postId) {
-        console.error("댓글 업데이트 오류: 댓글 ID와 게시물 ID가 필요합니다.")
-        return
-      }
-
-      const response = await fetch(`/api/comments/${selectedComment.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ body: selectedComment.body }),
-      })
-      const data = await response.json()
-      setComments(
-        data.postId,
-        comments[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
-      )
-      setShowEditCommentDialog(false)
-    } catch (error) {
-      console.error("댓글 업데이트 오류:", error)
-    }
-  }
-
-
-
   // 게시물 상세 보기
   const openPostDetail = (post) => {
     setSelectedPost(post)
@@ -236,7 +152,6 @@ const PostsManager = () => {
     setShowPostDetailDialog(true)
   }
 
-  // 사용자 모달 열기
   const openUserModal = async (user) => {
     try {
       const response = await fetch(`/api/users/${user.id}`)
@@ -267,22 +182,9 @@ const PostsManager = () => {
 
   // 댓글
 
-  const renderComments = (postId: number) => (
-   <CommentsList
-    postId={postId}
-   />
-  )
   return (
     <Card className="w-full max-w-6xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>게시물 관리자</span>
-          <Button onClick={() => setShowAddDialog(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            게시물 추가
-          </Button>
-        </CardTitle>
-      </CardHeader>
+      <PostsHeader />
       <CardContent>
         <div className="flex flex-col gap-4">
           {/* 검색 및 필터 컨트롤 */}
@@ -298,54 +200,17 @@ const PostsManager = () => {
 
       {/* 게시물 추가 대화상자 */}
       <AddPostDialog />
+
       {/* 게시물 수정 대화상자 */}
       <EditPostDialog />
+
       {/* 댓글 추가 대화상자 */}
-      <Dialog open={showAddCommentDialog} onOpenChange={setShowAddCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>새 댓글 추가</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={newComment.body}
-              onChange={(e) => setNewComment({ ...newComment, body: e.target.value })}
-            />
-            <Button onClick={addComment}>댓글 추가</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AddCommentDialog />
 
       {/* 댓글 수정 대화상자 */}
-      <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>댓글 수정</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Textarea
-              placeholder="댓글 내용"
-              value={selectedComment?.body || ""}
-              onChange={(e) => setSelectedComment({ ...selectedComment, body: e.target.value })}
-            />
-            <Button onClick={updateComment}>댓글 업데이트</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
+      <EditCommentDialog />
       {/* 게시물 상세 보기 대화상자 */}
-      <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>{highlightText(selectedPost?.title, searchQuery)}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>{highlightText(selectedPost?.body, searchQuery)}</p>
-            {renderComments(selectedPost?.id)}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PostDetailDialog />
 
       {/* 사용자 모달 */}
       <UserModal />

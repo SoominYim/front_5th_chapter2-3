@@ -5,11 +5,11 @@ interface Comment {
   body: string
   postId: number | null
   userId: number
-  user: {
+  user?: {
     username: string
     id: number
   }
-  likes: number
+  likes?: number
 }
 
 interface CommentState {
@@ -27,8 +27,7 @@ interface CommentState {
 }
 
 const useCommentStore = create<CommentState>((set) => ({
-  comments: {
-  },
+  comments: {},
   selectedComment: null,
   newComment: { body: "", postId: null, userId: 1, user: { username: "", id: 1 }, likes: 0 },
   showAddCommentDialog: false,
