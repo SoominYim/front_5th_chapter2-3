@@ -1,11 +1,16 @@
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../../../shared/ui"
+import { useShallow } from "zustand/shallow"
 import useFilterStore from "../../model/useFilterStore"
-import usePostsStore from "../../../posts/model/usePostsStore"
-
 export default function TagFilter() {
-  const { setSkip } = useFilterStore()
-  const { tags, selectedTag, setSelectedTag } = usePostsStore()
-  
+  const { tags, selectedTag, setSelectedTag, setSkip } = useFilterStore(
+    useShallow((state) => ({
+      tags: state.tags,
+      selectedTag: state.selectedTag,
+      setSelectedTag: state.setSelectedTag,
+      setSkip: state.setSkip,
+    })),
+  )
+
   return (
     <Select
       value={selectedTag}
@@ -27,4 +32,4 @@ export default function TagFilter() {
       </SelectContent>
     </Select>
   )
-} 
+}

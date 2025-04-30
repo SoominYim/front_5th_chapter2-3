@@ -1,15 +1,12 @@
-import useUserStore from "../../../features/user/model/useUserStore"
 import { User } from "../model/type"
 
-// 사용자 모달 열기
-export const fetchUser = async (user: User) => {
-  const { setSelectedUser, setShowUserModal } = useUserStore.getState()
+// 사용자 정보 가져오기
+export const fetchUser = async (userId: number): Promise<User> => {
   try {
-    const response = await fetch(`/api/users/${user.id}`)
-    const userData = await response.json()
-    setSelectedUser(userData)
-    setShowUserModal(true)
+    const response = await fetch(`/api/users/${userId}`)
+    return await response.json()
   } catch (error) {
     console.error("사용자 정보 가져오기 오류:", error)
+    throw error
   }
 }
