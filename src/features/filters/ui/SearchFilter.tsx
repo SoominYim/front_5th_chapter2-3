@@ -1,15 +1,16 @@
 import { Search } from "lucide-react"
 import { Input } from "../../../shared/ui"
 import useFilterStore from "../model/useFilterStore"
+import { useState } from "react"
 
 export default function SearchFilter() {
   const { searchQuery, setSearchQuery, setSkip } = useFilterStore()
+  const [inputValue, setInputValue] = useState(searchQuery)
 
   const handleSearch = () => {
-    if (searchQuery) {
-      // 검색 시 결과의 첫 페이지로 이동
-      setSkip(0)
-    }
+    // inputValue가 비어있어도 검색 실행 (리셋 목적)
+    setSearchQuery(inputValue)
+    setSkip(0)
   }
 
   return (
@@ -19,9 +20,9 @@ export default function SearchFilter() {
         <Input
           placeholder="게시물 검색..."
           className="pl-8"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
       </div>
     </div>
