@@ -1,13 +1,13 @@
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../../../shared/ui"
-import useFilterStore from "../../model/useFilterStore"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../../shared/ui"
+import useFilterStore from "../model/useFilterStore"
 
 export default function SortFilters() {
   const { sortBy, setSortBy, sortOrder, setSortOrder, setSkip } = useFilterStore()
-  
+
   return (
     <>
-      <Select 
-        value={sortBy} 
+      <Select
+        value={sortBy}
         onValueChange={(value) => {
           setSortBy(value)
           setSkip(0)
@@ -23,9 +23,9 @@ export default function SortFilters() {
           <SelectItem value="reactions">반응</SelectItem>
         </SelectContent>
       </Select>
-      
-      <Select 
-        value={sortOrder} 
+
+      <Select
+        value={sortOrder}
         onValueChange={(value) => {
           setSortOrder(value)
           setSkip(0)
@@ -41,4 +41,4 @@ export default function SortFilters() {
       </Select>
     </>
   )
-} 
+}

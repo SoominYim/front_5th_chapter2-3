@@ -26,7 +26,7 @@ interface FilterState {
 const useFilterStore = create<FilterState>((set) => ({
   searchQuery: "",
   sortBy: "",
-  sortOrder: "",
+  sortOrder: "asc",
   skip: 0,
   limit: 10,
   tags: [],

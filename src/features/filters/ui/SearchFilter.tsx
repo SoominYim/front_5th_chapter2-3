@@ -1,17 +1,17 @@
 import { Search } from "lucide-react"
-import { Input } from "../../../../shared/ui"
-import useFilterStore from "../../model/useFilterStore"
+import { Input } from "../../../shared/ui"
+import useFilterStore from "../model/useFilterStore"
 
 export default function SearchFilter() {
   const { searchQuery, setSearchQuery, setSkip } = useFilterStore()
-  
+
   const handleSearch = () => {
     if (searchQuery) {
       // 검색 시 결과의 첫 페이지로 이동
       setSkip(0)
     }
   }
-  
+
   return (
     <div className="flex-1">
       <div className="relative">
@@ -26,4 +26,4 @@ export default function SearchFilter() {
       </div>
     </div>
   )
-} 
+}

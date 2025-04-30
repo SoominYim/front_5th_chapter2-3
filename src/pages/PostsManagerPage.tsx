@@ -1,39 +1,30 @@
 import { useEffect } from "react"
 import { useShallow } from "zustand/shallow"
+
+// Components
 import AddPostDialog from "../features/posts/ui/AddPostDialog.tsx"
 import EditPostDialog from "../features/posts/ui/EditPostDialog.tsx"
 import UserModal from "../widgets/userModal/UserModal.tsx"
 import PostsPagination from "../features/filters/ui/PostPagination.tsx"
-import FilterWrapper from "../features/filters/ui/filters/FilterWrapper.tsx"
+import FilterWrapper from "../features/filters/ui/FilterWrapper.tsx"
 import AddCommentDialog from "../features/comment/ui/AddCommentDialog.tsx"
 import EditCommentDialog from "../features/comment/ui/EditCommentDialog.tsx"
 import PostsTable from "../features/posts/ui/table/PostsTable.tsx"
+
 // Store
-import usePostsStore from "../features/posts/model/usePostsStore.ts"
-import useGlobalStore from "../shared/model/useGlobalStore.ts"
 import useFilterStore from "../features/filters/model/useFilterStore.ts"
-import { useURLParams } from "../shared/lib/hooks/useURLParams.ts"
-import { usePostsQuery, useTagsQuery } from "../entities/post/model/queries.ts"
 import PostDetailDialog from "../widgets/PostDetailDialog/PostDetailDialog.tsx"
 import PostsHeader from "../features/posts/ui/PostHeader.tsx"
+
 // UI
 import { Card, CardContent } from "../shared/ui"
 
-// 게시물 관리 페이지
+// Hooks
+import { useURLParams } from "../shared/lib/hooks/useURLParams.ts"
+
 const PostsManager = () => {
-  // global 상태 관리
-  const { loading, setLoading } = useGlobalStore()
-
-  // posts 상태 관리
-  const { setTotal, setPosts } = usePostsStore(
-    useShallow((state) => ({
-      setTotal: state.setTotal,
-      setPosts: state.setPosts,
-    })),
-  )
-
   // filters 상태 관리
-  const { searchQuery, selectedTag, sortBy, sortOrder, skip, limit, setTags } = useFilterStore(
+  const { searchQuery, selectedTag, sortBy, sortOrder, skip, limit } = useFilterStore(
     useShallow((state) => ({
       searchQuery: state.searchQuery,
       selectedTag: state.selectedTag,
@@ -41,38 +32,11 @@ const PostsManager = () => {
       sortOrder: state.sortOrder,
       skip: state.skip,
       limit: state.limit,
-      setTags: state.setTags,
     })),
   )
 
   // URL 파라미터 훅 사용
   const { updateURL } = useURLParams()
-
-  // React Query 사용
-  const { data: postsData, isLoading } = usePostsQuery({
-    skip,
-    limit,
-    tag: selectedTag,
-    searchQuery: searchQuery,
-    sortBy,
-    sortOrder,
-  })
-
-  const { data: tagsData } = useTagsQuery()
-
-  // 데이터가 로드되면 상태 업데이트
-  useEffect(() => {
-    if (postsData) {
-      setPosts(postsData.posts)
-      setTotal(postsData.total)
-    }
-
-    if (tagsData) {
-      setTags(tagsData)
-    }
-
-    setLoading(isLoading)
-  }, [postsData, tagsData, isLoading])
 
   // URL 파라미터가 변경될 때마다 자동으로 URL 업데이트
   useEffect(() => {
@@ -81,7 +45,7 @@ const PostsManager = () => {
       limit,
       search: searchQuery,
       sortBy,
-      sortOrder,
+      order: sortOrder,
       tag: selectedTag,
     })
   }, [skip, limit, sortBy, sortOrder, selectedTag, searchQuery, updateURL])
@@ -91,33 +55,18 @@ const PostsManager = () => {
       <PostsHeader />
       <CardContent>
         <div className="flex flex-col gap-4">
-          {/* 검색 및 필터 컨트롤 */}
           <FilterWrapper />
-
-          {/* 게시물 테이블 */}
-          {loading ? <div className="flex justify-center p-4">로딩 중...</div> : <PostsTable />}
-
-          {/* 페이지네이션 */}
+          <PostsTable />
           <PostsPagination />
         </div>
       </CardContent>
 
-      {/* 게시물 추가 대화상자 */}
+      {/*다이얼로그 */}
       <AddPostDialog />
-
-      {/* 게시물 수정 대화상자 */}
       <EditPostDialog />
-
-      {/* 댓글 추가 대화상자 */}
       <AddCommentDialog />
-
-      {/* 댓글 수정 대화상자 */}
       <EditCommentDialog />
-
-      {/* 게시물 상세 보기 대화상자 */}
       <PostDetailDialog />
-
-      {/* 사용자 모달 */}
       <UserModal />
     </Card>
   )
