@@ -1,11 +1,11 @@
-import useCommentStore from "../../../features/comments/model/useCommentStore"
+import useCommentStore from "../../../features/comment/model/useCommentStore"
 
 // 댓글 추가
 export const useCreateComment = () => {
-    const { newComment, comments, setComments, setShowAddCommentDialog, setNewComment } = useCommentStore.getState()
+  const { newComment, comments, setComments, setShowAddCommentDialog, setNewComment } = useCommentStore.getState()
 
-    const addComment = async () => {
-        try {
+  const addComment = async () => {
+    try {
       // postId가 null이면 중단
       if (newComment.postId === null) {
         console.error("댓글 추가 오류: 게시물 ID가 필요합니다.")

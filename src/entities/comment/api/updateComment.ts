@@ -1,4 +1,4 @@
-import useCommentStore from "../model/useCommentStore"
+import useCommentStore from "../../../features/comment/model/useCommentStore"
 
 // 댓글 업데이트
 export const updateComment = async () => {

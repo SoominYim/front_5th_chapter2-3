@@ -1,4 +1,4 @@
-import usePostsStore from "../model/usePostsStore"
+import usePostsStore from "../../../features/posts/model/usePostsStore"
 import { useShallow } from "zustand/shallow"
 // 게시물 업데이트
 export const useUpdatePost = () => {

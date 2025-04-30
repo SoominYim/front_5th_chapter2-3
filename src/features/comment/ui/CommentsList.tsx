@@ -5,8 +5,8 @@ import { Button } from "../../../shared/ui/Button"
 import highlightText from "../../../shared/lib/util/highlightText"
 import useFilterStore from "../../filters/model/useFilterStore"
 import useCommentStore from "../model/useCommentStore"
-import { deleteComment } from "../api/deleteComment"
-import { likeComment } from "../api/likeComment"
+import { deleteComment } from "../../../entities/comment/api/deleteComment"
+import { likeComment } from "../../../entities/comment/api/likeComment"
 
 interface CommentsListProps {
   postId: number

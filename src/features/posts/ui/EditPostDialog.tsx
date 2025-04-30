@@ -4,7 +4,7 @@ import { Input } from "../../../shared/ui/Input"
 import { Textarea } from "../../../shared/ui/Textarea"
 import { Button } from "../../../shared/ui/Button"
 import usePostsStore from "../model/usePostsStore"
-import { useUpdatePost } from "../api/useUpdatePost"
+import { useUpdatePost } from "../../../entities/post/api/useUpdatePost"
 
 const EditPostDialog = () => {
   const { showEditDialog, setShowEditDialog, selectedPost, setSelectedPost } = usePostsStore(

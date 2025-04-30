@@ -1,4 +1,4 @@
-import useCommentStore from "../../../features/comments/model/useCommentStore"
+import useCommentStore from "../../../features/comment/model/useCommentStore"
 
 // 댓글 가져오기
 export const fetchComments = async (postId: number) => {

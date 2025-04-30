@@ -4,7 +4,7 @@ import { Input } from "../../../shared/ui/Input"
 import { Textarea } from "../../../shared/ui/Textarea"
 import { Button } from "../../../shared/ui/Button"
 import usePostsStore from "../model/usePostsStore"
-import { useCreatePost } from "../../../entities/post/api/createPost"
+import { useCreatePost } from "../../../entities/post/api/useCreatePost"
 const AddPostDialog = () => {
   const { newPost, showAddDialog, setNewPost, setShowAddDialog } = usePostsStore(
     useShallow((state) => ({

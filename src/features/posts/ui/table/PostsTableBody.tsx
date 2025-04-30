@@ -8,22 +8,15 @@ import { openPostDetail } from "../../api/openPostDetail"
 import highlightText from "../../../../shared/lib/util/highlightText"
 import usePostsStore from "../../model/usePostsStore"
 import useFilterStore from "../../../filters/model/useFilterStore"
+import { PostTablePost } from "../../../../entities/post/model/type"
 
-import Post from "../../../../entities/post/model/type"
-
-// Post 타입을 PostTablePost로 확장
-interface PostTablePost extends Post {
-  tags?: string[]
-  reactions?: {
-    likes: number
-    dislikes: number
-  }
+interface PostsTableBodyProps {
+  posts: PostTablePost[]
 }
 
-const PostsTableBody = () => {
-  const { posts, setSelectedPost, setShowEditDialog } = usePostsStore(
+const PostsTableBody = ({ posts }: PostsTableBodyProps) => {
+  const { setSelectedPost, setShowEditDialog } = usePostsStore(
     useShallow((state) => ({
-      posts: state.posts as unknown as PostTablePost[],
       setSelectedPost: state.setSelectedPost,
       setShowEditDialog: state.setShowEditDialog,
     })),

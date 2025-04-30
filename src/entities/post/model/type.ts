@@ -19,4 +19,13 @@ interface Post {
   tags?: string[]
 }
 
+interface PostTablePost extends Post {
+  tags?: string[]
+  reactions?: {
+    likes: number
+    dislikes: number
+  }
+}
+
 export default Post
+export type { PostTablePost }

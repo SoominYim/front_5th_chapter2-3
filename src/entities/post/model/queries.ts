@@ -1,12 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import {
-  fetchPosts,
-  fetchPostsByTag,
-  searchPosts,
-  fetchTags,
-  PostParams,
-  TagParams,
-} from "../../../entities/post/api/fetchPost"
+import { fetchPosts, fetchPostsByTag, searchPosts, fetchTags, PostParams, TagParams } from "../api/fetchPost"
 
 export interface PostsQueryParams extends PostParams {
   tag?: string
@@ -25,7 +18,9 @@ export function usePostsQuery(params: PostsQueryParams) {
       if (searchQuery) {
         return searchPosts(searchQuery, { sortBy, sortOrder })
       }
-      return tag ? fetchPostsByTag({ tag, limit, skip, sortBy, sortOrder } as TagParams) : fetchPosts({ limit, skip, sortBy, sortOrder })
+      return tag
+        ? fetchPostsByTag({ tag, limit, skip, sortBy, sortOrder } as TagParams)
+        : fetchPosts({ limit, skip, sortBy, sortOrder })
     },
   })
 }

@@ -3,7 +3,7 @@ import { Textarea } from "../../../shared/ui/Textarea"
 import { Button } from "../../../shared/ui/Button"
 import useCommentStore from "../model/useCommentStore"
 import { useShallow } from "zustand/shallow"
-import { updateComment } from "../api/updateComment"
+import { updateComment } from "../../../entities/comment/api/updateComment"
 
 const EditCommentDialog = () => {
   const { showEditCommentDialog, setShowEditCommentDialog, selectedComment, setSelectedComment } = useCommentStore(
