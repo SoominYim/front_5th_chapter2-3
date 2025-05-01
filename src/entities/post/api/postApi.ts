@@ -131,13 +131,32 @@ export const searchPostsAPI = async (query: string, options?: { sortBy?: string;
     url += `&sortBy=${options.sortBy}&order=${options.sortOrder || "asc"}`
   }
 
-  const response = await fetch(url)
+  const [postsResponse, usersResponse] = await Promise.all([
+    fetch(url),
+    fetch("/api/users?limit=0&select=username,image")
+  ])
   
-  if (!response.ok) {
+  if (!postsResponse.ok) {
     throw new Error("게시물 검색 실패")
   }
   
-  return response.json()
+  if (!usersResponse.ok) {
+    throw new Error("사용자 목록 가져오기 실패")
+  }
+  
+  const postsData = await postsResponse.json()
+  const usersData = await usersResponse.json()
+  
+  // 검색 결과 게시물에 사용자 정보 추가
+  const postsWithUsers = postsData.posts.map((post: any) => ({
+    ...post,
+    author: usersData.users.find((user: any) => user.id === post.userId),
+  }))
+  
+  return {
+    posts: postsWithUsers,
+    total: postsData.total,
+  }
 }
 
 /**
