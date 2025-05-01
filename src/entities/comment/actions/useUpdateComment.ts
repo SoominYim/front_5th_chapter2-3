@@ -22,30 +22,48 @@ export const useUpdateComment = () => {
     mutationFn: updateCommentAPI,
     onSuccess: (data) => {
       // 기존 상태 업데이트 방식 유지
-      setComments(
-        data.postId,
-        comments[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
-      )
-      
-      // 추가적으로 쿼리 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ["comments", data.postId] })
+      if (data.postId && comments[data.postId]) {
+        setComments(
+          data.postId,
+          comments[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
+        )
+        
+        // 추가적으로 쿼리 캐시 무효화
+        queryClient.invalidateQueries({ queryKey: ["comments", data.postId] })
+      }
       
       // UI 상태 초기화
       setShowEditCommentDialog(false)
     },
     onError: (error) => {
       console.error("댓글 업데이트 오류:", error)
+      // 오류가 발생해도 모달은 닫기
+      setShowEditCommentDialog(false)
     }
   })
 
   // 액션 함수 - 간단하게 mutation 호출
   const updateComment = () => {
-    if (!selectedComment?.id || !selectedComment?.postId) {
-      console.error("댓글 업데이트 오류: 댓글 ID와 게시물 ID가 필요합니다.")
+    if (!selectedComment) {
+      console.error("댓글 업데이트 오류: 선택된 댓글이 없습니다.")
       return
     }
     
-    mutation.mutate({ id: selectedComment.id, body: selectedComment.body })
+    // ID와 postId가 없어도 진행 (클라이언트 생성 댓글 처리)
+    if (!selectedComment.id || !selectedComment.postId) {
+      console.warn("댓글 업데이트: 클라이언트에서 생성된 댓글을 수정합니다.")
+    }
+    
+    // 필수 정보 세팅
+    const id = selectedComment.id || 0
+    const postId = selectedComment.postId || 0
+    const body = selectedComment.body || ""
+    
+    mutation.mutate({ 
+      id, 
+      body,
+      postId // API 함수에서 사용할 수 있도록 추가
+    })
   }
 
   return { 
