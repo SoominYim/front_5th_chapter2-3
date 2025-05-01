@@ -216,14 +216,33 @@ export const updatePostAPI = async (postData: any) => {
       body: JSON.stringify(postData),
     })
     
+    // 사용자 정보 가져오기
+    const usersResponse = await fetch("/api/users?limit=0&select=username,image")
+    
+    if (!usersResponse.ok) {
+      throw new Error("사용자 목록 가져오기 실패")
+    }
+    
+    const usersData = await usersResponse.json()
+    
     if (response.ok) {
-      return response.json()
+      const updatedPostData = await response.json()
+      // 업데이트된 게시물에 사용자 정보 추가
+      return {
+        ...updatedPostData,
+        author: usersData.users.find((user: User) => user.id === updatedPostData.userId)
+      }
     }
     
     // 404 오류가 발생하면 업데이트된 것처럼 응답 생성
     if (response.status === 404) {
       console.log(`게시물 ID ${postData.id}는 서버에 없지만, UI에서는 업데이트된 것으로 처리합니다.`)
-      return { ...postData, isUpdated: true }
+      return { 
+        ...postData, 
+        isUpdated: true,
+        // 기존 author 정보 유지 또는 없으면 새로 찾기
+        author: postData.author || usersData.users.find((user: User) => user.id === postData.userId)
+      }
     }
     
     throw new Error("게시물 업데이트 실패")
