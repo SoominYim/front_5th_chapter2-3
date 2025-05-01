@@ -58,13 +58,8 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
-    const { setSearchQuery, setSortBy, setSortOrder, setSkip, setLimit, setSelectedTag } = useFilterStore.getState();
+    const { setSearchQuery } = useFilterStore.getState();
   setSearchQuery("");
-  setSortBy("");
-  setSortOrder("asc");
-  setSkip(0);
-  setLimit(10);
-  setSelectedTag("");
 })
 afterAll(() => server.close())
 
