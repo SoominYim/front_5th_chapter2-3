@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, Textarea, Button } from "../../../shared/ui"
 import useCommentStore from "../model/useCommentStore"
 import { useShallow } from "zustand/shallow"
-import { useCreateComment } from "../../../entities/comment/api/createComments"
+import { useCreateComment } from "../../../entities/comment/hooks/useCreateComment"
 
 const AddCommentDialog = () => {
   const { showAddCommentDialog, setShowAddCommentDialog, newComment, setNewComment } = useCommentStore(

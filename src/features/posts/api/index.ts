@@ -1,2 +1,2 @@
-export * from "../../../entities/post/api/useDeletePost"
-export * from "../../../entities/post/api/useUpdatePost"
+export * from "../../../entities/post/hooks/useDeletePost"
+export * from "../../../entities/post/hooks/useUpdatePost"

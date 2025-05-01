@@ -1,22 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import usePostsStore from "../../../features/posts/model/usePostsStore"
+import { createPostAPI } from "../api/postApi"
 
-// API 요청 함수 분리
-export const createPostAPI = async (postData: any) => {
-  const response = await fetch("/api/posts/add", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(postData),
-  })
-  
-  if (!response.ok) {
-    throw new Error("게시물 추가 실패")
-  }
-  
-  return response.json()
-}
-
-// 게시물 추가를 위한 커스텀 훅
+/**
+ * 게시물 추가를 위한 커스텀 훅
+ */
 export const useCreatePost = () => {
   const queryClient = useQueryClient()
   const { newPost, posts, setNewPost, setPosts, setShowAddDialog } = usePostsStore()
@@ -51,4 +39,4 @@ export const useCreatePost = () => {
     isError: mutation.isError,
     error: mutation.error
   }
-}
+} 

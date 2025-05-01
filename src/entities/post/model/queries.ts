@@ -1,5 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
-import { fetchPosts, fetchPostsByTag, searchPosts, fetchTags, PostParams, TagParams } from "../api/fetchPost"
+import { 
+  fetchPostsWithParamsAPI, 
+  fetchPostsByTagAPI, 
+  searchPostsAPI, 
+  fetchTagsAPI, 
+  PostParams, 
+  TagParams 
+} from "../api/postApi"
 
 export interface PostsQueryParams extends PostParams {
   tag?: string
@@ -16,11 +23,11 @@ export function usePostsQuery(params: PostsQueryParams) {
     queryKey: ["posts", { tag, limit, skip, searchQuery, sortBy, sortOrder }],
     queryFn: () => {
       if (searchQuery) {
-        return searchPosts(searchQuery, { sortBy, sortOrder })
+        return searchPostsAPI(searchQuery, { sortBy, sortOrder })
       }
       return tag
-        ? fetchPostsByTag({ tag, limit, skip, sortBy, sortOrder } as TagParams)
-        : fetchPosts({ limit, skip, sortBy, sortOrder })
+        ? fetchPostsByTagAPI({ tag, limit, skip, sortBy, sortOrder } as TagParams)
+        : fetchPostsWithParamsAPI({ limit, skip, sortBy, sortOrder })
     },
   })
 }
@@ -29,7 +36,7 @@ export function usePostsQuery(params: PostsQueryParams) {
 export function useTagsQuery() {
   return useQuery({
     queryKey: ["tags"],
-    queryFn: fetchTags,
+    queryFn: fetchTagsAPI,
     // 태그 데이터는 자주 변경되지 않으므로 캐싱 시간 증가
     staleTime: 1000 * 60 * 30, // 30분
     gcTime: 1000 * 60 * 60, // 1시간 (이전 cacheTime)

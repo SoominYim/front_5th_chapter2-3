@@ -1,23 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import usePostsStore from "../../../features/posts/model/usePostsStore"
 import { useShallow } from "zustand/shallow"
+import { updatePostAPI } from "../api/postApi"
 
-// API 요청 함수 분리
-export const updatePostAPI = async (postData: any) => {
-  const response = await fetch(`/api/posts/${postData.id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(postData),
-  })
-  
-  if (!response.ok) {
-    throw new Error("게시물 업데이트 실패")
-  }
-  
-  return response.json()
-}
-
-// 게시물 업데이트
+/**
+ * 게시물 업데이트를 위한 커스텀 훅
+ */
 export const useUpdatePost = () => {
   const queryClient = useQueryClient()
   const { selectedPost, posts, setPosts, setShowEditDialog } = usePostsStore(
@@ -59,4 +47,4 @@ export const useUpdatePost = () => {
     isError: mutation.isError,
     error: mutation.error
   }
-}
+} 

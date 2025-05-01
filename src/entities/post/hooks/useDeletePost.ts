@@ -1,21 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import usePostsStore from "../../../features/posts/model/usePostsStore"
 import { useShallow } from "zustand/shallow"
+import { deletePostAPI } from "../api/postApi"
 
-// API 요청 함수 분리
-export const deletePostAPI = async (id: number) => {
-  const response = await fetch(`/api/posts/${id}`, {
-    method: "DELETE",
-  })
-  
-  if (!response.ok) {
-    throw new Error("게시물 삭제 실패")
-  }
-  
-  return response.json()
-}
-
-// 게시물 삭제를 위한 커스텀 훅
+/**
+ * 게시물 삭제를 위한 커스텀 훅
+ */
 export const useDeletePost = () => {
   const queryClient = useQueryClient()
   const { posts, setPosts } = usePostsStore(
@@ -28,7 +18,9 @@ export const useDeletePost = () => {
   // TanStack Query의 useMutation 사용
   const mutation = useMutation({
     mutationFn: deletePostAPI,
-    onSuccess: (_, id) => {
+    onSuccess: (_, variables) => {
+      const id = variables
+      
       // 기존 상태 업데이트 방식 유지
       setPosts(posts.filter((post) => post.id !== id))
       
@@ -50,4 +42,4 @@ export const useDeletePost = () => {
     isError: mutation.isError,
     error: mutation.error
   }
-}
+} 

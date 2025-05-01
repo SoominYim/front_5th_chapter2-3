@@ -2,32 +2,13 @@ import { useQuery } from "@tanstack/react-query"
 import useCommentStore from "../../../features/comment/model/useCommentStore"
 import { useShallow } from "zustand/shallow"
 import { useEffect } from "react"
+import { fetchCommentsAPI } from "../api/commentApi"
 
-// API 요청 함수 분리
-export const fetchCommentsAPI = async (postId: number) => {
-  const response = await fetch(`/api/comments/post/${postId}`)
-  
-  if (!response.ok) {
-    throw new Error("댓글 가져오기 실패")
-  }
-  
-  return response.json()
-}
-
-// 기존 함수 복원 (하위 호환성 유지)
-export const fetchComments = async (postId: number) => {
-  const { comments, setComments } = useCommentStore.getState()
-  if (comments[postId]) return // 이미 불러온 댓글이 있으면 다시 불러오지 않음
-  try {
-    const response = await fetch(`/api/comments/post/${postId}`)
-    const data = await response.json()
-    setComments(postId, data.comments)
-  } catch (error) {
-    console.error("댓글 가져오기 오류:", error)
-  }
-}
-
-// 댓글 가져오기 훅으로 변경
+/**
+ * 게시물별 댓글 목록을 가져오는 커스텀 훅
+ * @param postId 게시물 ID
+ * @param enabled 요청 활성화 여부 (기본값: true)
+ */
 export const useFetchComments = (postId: number, enabled: boolean = true) => {
   const { comments, setComments } = useCommentStore(
     useShallow((state) => ({
@@ -63,4 +44,4 @@ export const useFetchComments = (postId: number, enabled: boolean = true) => {
     isError: query.isError,
     error: query.error
   }
-}
+} 

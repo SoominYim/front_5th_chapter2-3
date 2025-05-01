@@ -1,23 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import useCommentStore from "../../../features/comment/model/useCommentStore"
 import { useShallow } from "zustand/shallow"
+import { updateCommentAPI } from "../api/commentApi"
 
-// API 요청 함수 분리
-export const updateCommentAPI = async ({ id, body }: { id: number; body: string }) => {
-  const response = await fetch(`/api/comments/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ body }),
-  })
-  
-  if (!response.ok) {
-    throw new Error("댓글 업데이트 실패")
-  }
-  
-  return response.json()
-}
-
-// 댓글 업데이트를 위한 커스텀 훅
+/**
+ * 댓글 업데이트를 위한 커스텀 훅
+ */
 export const useUpdateComment = () => {
   const queryClient = useQueryClient()
   const { comments, selectedComment, setComments, setShowEditCommentDialog } = useCommentStore(
@@ -66,4 +54,4 @@ export const useUpdateComment = () => {
     isError: mutation.isError,
     error: mutation.error
   }
-}
+} 

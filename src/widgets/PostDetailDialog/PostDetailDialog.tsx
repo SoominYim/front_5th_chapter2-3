@@ -3,7 +3,7 @@ import usePostsStore from "../../features/posts/model/usePostsStore"
 import useFilterStore from "../../features/filters/model/useFilterStore"
 import CommentsList from "../../features/comment/ui/CommentsList"
 import highlightText from "../../shared/lib/util/highlightText"
-import { useFetchComments } from "../../entities/comment/api/fetchComments"
+import { useFetchComments } from "../../entities/comment/hooks/useFetchComments"
 import { useShallow } from "zustand/shallow"
 
 const PostDetailDialog = () => {

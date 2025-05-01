@@ -1,21 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import useCommentStore from "../../../features/comment/model/useCommentStore"
 import { useShallow } from "zustand/shallow"
+import { deleteCommentAPI } from "../api/commentApi"
 
-// API 요청 함수 분리 - postId는 API 호출에 사용되지 않지만 mutation에서는 필요합니다
-export const deleteCommentAPI = async ({ id }: { id: number }) => {
-  const response = await fetch(`/api/comments/${id}`, {
-    method: "DELETE",
-  })
-  
-  if (!response.ok) {
-    throw new Error("댓글 삭제 실패")
-  }
-  
-  return response.json()
-}
-
-// 댓글 삭제 훅으로 변경
+/**
+ * 댓글 삭제를 위한 커스텀 훅
+ */
 export const useDeleteComment = () => {
   const queryClient = useQueryClient()
   const { comments, setComments } = useCommentStore(
@@ -27,12 +17,11 @@ export const useDeleteComment = () => {
 
   // TanStack Query의 useMutation 사용
   const mutation = useMutation({
-    mutationFn: ({ id }: { id: number }) => deleteCommentAPI({ id }),
+    // API 요청 시 id만 사용하고 나머지 데이터는 무시
+    mutationFn: ({ id }: { id: number; postId: number }) => deleteCommentAPI(id),
     onSuccess: (_, variables) => {
-      
-      // variables에는 mutate 호출 시 전달한 모든 매개변수가 포함
-      const { id, postId } = variables as { id: number; postId: number }
-      
+      const { id, postId } = variables
+
       // 기존 상태 업데이트 방식 유지
       setComments(
         postId,
@@ -48,8 +37,8 @@ export const useDeleteComment = () => {
   })
 
   const deleteComment = (id: number, postId: number) => {
-    // id만 API에 전달하고 postId는 onSuccess에서 사용하기 위해 함께 전달
-    mutation.mutate({ id, postId } as any)
+    // id와 postId 모두 전달하고 mutationFn에서 필요한 값만 사용
+    mutation.mutate({ id, postId })
   }
 
   return { 
@@ -58,4 +47,4 @@ export const useDeleteComment = () => {
     isError: mutation.isError,
     error: mutation.error
   }
-}
+} 
