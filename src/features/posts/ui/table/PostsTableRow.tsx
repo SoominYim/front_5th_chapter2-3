@@ -1,6 +1,6 @@
 import { TableCell, TableRow, Button } from "../../../../shared/ui"
 import { Edit2, MessageSquare, Trash2, ThumbsDown, ThumbsUp } from "lucide-react"
-import { openUserModal } from "../../../user/api/openUserModal"
+import { useUserModalActions } from "../../../user/api/useUserModalActions"
 import { openPostDetail } from "../../api/openPostDetail"
 import highlightText from "../../../../shared/lib/util/highlightText"
 import usePostsStore from "../../model/usePostsStore"
@@ -32,7 +32,7 @@ const PostTableRow = ({ post }: PostTableRowProps) => {
 
   const { updateURL } = useURLParams()
   const { deletePost } = useDeletePost()
-
+  const { openUserModal } = useUserModalActions()
   return (
     <TableRow>
       <TableCell>{post.id}</TableCell>
