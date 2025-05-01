@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../../shared/ui"
 import { useShallow } from "zustand/shallow"
 import useFilterStore from "../model/useFilterStore"
-import { useTagsQuery } from "../../../entities/post/model/queries"
+import { useTagsQuery } from "../../../entities/post/model/tagsQuery"
 import { memo } from "react"
 
 interface Tag {

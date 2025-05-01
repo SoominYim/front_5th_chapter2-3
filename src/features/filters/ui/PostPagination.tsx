@@ -1,7 +1,7 @@
 import { Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../../../shared/ui"
 import { useShallow } from "zustand/shallow"
 import useFilterStore from "../model/useFilterStore"
-import { usePostsQuery } from "../../../entities/post/model/queries"
+import { usePostsQuery } from "../../../entities/post/model/postsQuery"
 
 const PostsPagination = () => {
   const { limit, setLimit, skip, setSkip, searchQuery, selectedTag, sortBy, sortOrder } = useFilterStore(

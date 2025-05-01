@@ -7,7 +7,7 @@ import useFilterStore from "../../../filters/model/useFilterStore"
 import useGlobalStore from "../../../../shared/model/useGlobalStore"
 import { useShallow } from "zustand/shallow"
 import { PostTablePost } from "../../../../entities/post/model/type"
-import { usePostsQuery } from "../../../../entities/post/model/queries"
+import { usePostsQuery } from "../../../../entities/post/model/postsQuery"
 
 const PostsTable: React.FC = () => {
   // 필터 관련 상태 가져오기

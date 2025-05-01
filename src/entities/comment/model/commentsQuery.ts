@@ -5,11 +5,11 @@ import { useEffect } from "react"
 import { fetchCommentsAPI } from "../api/commentApi"
 
 /**
- * 게시물별 댓글 목록을 가져오는 커스텀 훅
+ * 게시물별 댓글 목록을 가져오는 쿼리 훅
  * @param postId 게시물 ID
  * @param enabled 요청 활성화 여부 (기본값: true)
  */
-export const useFetchComments = (postId: number, enabled: boolean = true) => {
+export function useCommentsQuery(postId: number, enabled: boolean = true) {
   const { comments, setComments } = useCommentStore(
     useShallow((state) => ({
       comments: state.comments,
