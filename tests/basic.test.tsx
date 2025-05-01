@@ -10,7 +10,7 @@ import { act } from "react"
 import "@testing-library/jest-dom"
 import { TEST_POSTS, TEST_SEARCH_POST, TEST_USERS } from "./mockData"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-
+import  useFilterStore  from "../src/features/filters/model/useFilterStore"
 
 
 // MSW 서버 설정
@@ -51,7 +51,20 @@ const server = setupServer(
 )
 
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }))
-afterEach(() => {server.resetHandlers(); // 핸들러
+beforeEach(() => {
+  server.resetHandlers(); // 핸들러 초기화
+  const queryClient = createQueryClient();
+  queryClient.clear();
+});
+afterEach(() => {
+  cleanup();
+    const { setSearchQuery, setSortBy, setSortOrder, setSkip, setLimit, setSelectedTag } = useFilterStore.getState();
+  setSearchQuery("");
+  setSortBy("");
+  setSortOrder("asc");
+  setSkip(0);
+  setLimit(10);
+  setSelectedTag("");
 })
 afterAll(() => server.close())
 
@@ -82,14 +95,14 @@ const renderPostsManager = () => {
 describe("PostsManager", () => {
   it("게시물을 렌더링하고 검색을 허용합니다", async () => {
     const user = userEvent.setup()
-    
-    await act(async () => {
       renderPostsManager()
-    })
 
     
     // 로딩 상태 확인 (선택적)
-    expect(screen.getByText(/로딩 중.../i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/로딩 중.../i)).toBeInTheDocument()
+    })
+
 
     // 게시물이 로드되었는지 확인
     await waitFor(() => {
@@ -97,6 +110,8 @@ describe("PostsManager", () => {
         expect(screen.getByText(post.title)).toBeInTheDocument()
       })
     })
+
+
 
     // 검색 기능 테스트
     const searchInput = screen.getByPlaceholderText(/게시물 검색.../i)
@@ -120,6 +135,7 @@ describe("PostsManager", () => {
       tags: [],
     }
 
+
     // POST 요청에 대한 핸들러 추가
     server.use(
       http.post("/api/posts/add", async ({ request }) => {
@@ -133,12 +149,14 @@ describe("PostsManager", () => {
       }),
     )
 
+
     renderPostsManager()
 
     // 기존 게시물들이 로드될 때까지 대기
     await waitFor(() => {
       TEST_POSTS.posts.forEach((post) => {
         expect(screen.getByText(post.title)).toBeInTheDocument()
+        console.log(post.title)
       })
     })
 
