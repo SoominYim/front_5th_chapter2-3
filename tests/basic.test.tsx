@@ -1,16 +1,17 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
-import { render, screen, waitFor } from "@testing-library/react"
+import { afterAll, afterEach, beforeEach, beforeAll, describe, expect, it } from "vitest"
+import { render, screen, waitFor,cleanup } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { http, HttpResponse } from "msw"
 import { setupServer } from "msw/node"
 import { MemoryRouter } from "react-router-dom"
 import PostsManager from "../src/pages/PostsManagerPage"
 import * as React from "react"
+import { act } from "react"
 import "@testing-library/jest-dom"
 import { TEST_POSTS, TEST_SEARCH_POST, TEST_USERS } from "./mockData"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
-const queryClient = new QueryClient()
+
 
 // MSW 서버 설정
 const server = setupServer(
@@ -18,8 +19,15 @@ const server = setupServer(
     return HttpResponse.json(TEST_POSTS)
   }),
 
-  http.get("/api/posts/search?q=His%20mother%20had%20always%20taught%20him", () => {
-    return HttpResponse.json(TEST_SEARCH_POST)
+  http.get("/api/posts/search", ({ request }) => {
+    const url = new URL(request.url)
+    const query = url.searchParams.get("q")
+
+    if (query === "His mother had always taught him") {
+      return HttpResponse.json(TEST_SEARCH_POST);
+    }
+
+    return HttpResponse.json({ posts: [] });
   }),
 
   http.get("/api/users", () => {
@@ -43,11 +51,25 @@ const server = setupServer(
 )
 
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }))
-afterEach(() => server.resetHandlers())
+afterEach(() => {server.resetHandlers(); // 핸들러
+})
 afterAll(() => server.close())
+
+
+const createQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        gcTime: 0,
+        retry: false,
+      },
+    },
+  });
+
 
 // 테스트에 공통으로 사용될 render 함수
 const renderPostsManager = () => {
+  const queryClient = createQueryClient();
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
@@ -60,8 +82,12 @@ const renderPostsManager = () => {
 describe("PostsManager", () => {
   it("게시물을 렌더링하고 검색을 허용합니다", async () => {
     const user = userEvent.setup()
-    renderPostsManager()
+    
+    await act(async () => {
+      renderPostsManager()
+    })
 
+    
     // 로딩 상태 확인 (선택적)
     expect(screen.getByText(/로딩 중.../i)).toBeInTheDocument()
 
@@ -82,6 +108,7 @@ describe("PostsManager", () => {
       expect(screen.queryByText("He was an expert but not in a discipline")).not.toBeInTheDocument()
     })
   })
+
 
   it("새 게시물 추가를 허용합니다", async () => {
     const user = userEvent.setup()
