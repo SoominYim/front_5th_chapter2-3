@@ -3,9 +3,8 @@ import usePostsStore from "../../features/posts/model/usePostsStore"
 import useFilterStore from "../../features/filters/model/useFilterStore"
 import CommentsList from "../../features/comment/ui/CommentsList"
 import highlightText from "../../shared/lib/util/highlightText"
-import { fetchComments } from "../../entities/comment/api/fetchComments"
+import { useFetchComments } from "../../entities/comment/api/fetchComments"
 import { useShallow } from "zustand/shallow"
-import { useEffect } from "react"
 
 const PostDetailDialog = () => {
   const { showPostDetailDialog, setShowPostDetailDialog, selectedPost } = usePostsStore(
@@ -22,12 +21,9 @@ const PostDetailDialog = () => {
     })),
   )
 
-  // selectedPost가 변경될 때 댓글 가져오기
-  useEffect(() => {
-    if (selectedPost?.id) {
-      fetchComments(selectedPost.id)
-    }
-  }, [selectedPost?.id])
+  // 댓글 가져오기 - 선택된 포스트가 있을 때만 실행
+  const postId = selectedPost?.id
+  const { isLoading } = useFetchComments(postId || 0, !!postId)
 
   return (
     <Dialog open={showPostDetailDialog} onOpenChange={setShowPostDetailDialog}>
@@ -38,6 +34,7 @@ const PostDetailDialog = () => {
         <div className="space-y-4">
           <p>{highlightText(selectedPost?.body || "", searchQuery)}</p>
           {selectedPost?.id && <CommentsList postId={selectedPost.id} />}
+          {isLoading && <div className="text-sm text-gray-500">댓글 로딩 중...</div>}
         </div>
       </DialogContent>
     </Dialog>

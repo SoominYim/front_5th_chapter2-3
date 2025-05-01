@@ -5,8 +5,8 @@ import { Button } from "../../../shared/ui/Button"
 import highlightText from "../../../shared/lib/util/highlightText"
 import useFilterStore from "../../filters/model/useFilterStore"
 import useCommentStore from "../model/useCommentStore"
-import { deleteComment } from "../../../entities/comment/api/deleteComment"
-import { likeComment } from "../../../entities/comment/api/likeComment"
+import { useDeleteComment } from "../../../entities/comment/api/deleteComment"
+import { useLikeComment } from "../../../entities/comment/api/likeComment"
 
 interface CommentsListProps {
   postId: number
@@ -29,6 +29,10 @@ const CommentsList: React.FC<CommentsListProps> = ({ postId }) => {
         setShowEditCommentDialog: state.setShowEditCommentDialog,
       })),
     )
+
+  const { deleteComment } = useDeleteComment()
+  const { likeComment, isLoading: isLiking } = useLikeComment()
+  
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between mb-2">
@@ -52,7 +56,12 @@ const CommentsList: React.FC<CommentsListProps> = ({ postId }) => {
               <span className="truncate">{highlightText(comment.body, searchQuery)}</span>
             </div>
             <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="sm" onClick={() => likeComment(comment.id as number, postId)}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => likeComment(comment.id as number, postId)}
+                disabled={isLiking}
+              >
                 <ThumbsUp className="w-3 h-3" />
                 <span className="ml-1 text-xs">{comment.likes}</span>
               </Button>

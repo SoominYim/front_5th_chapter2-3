@@ -3,7 +3,7 @@ import { Textarea } from "../../../shared/ui/Textarea"
 import { Button } from "../../../shared/ui/Button"
 import useCommentStore from "../model/useCommentStore"
 import { useShallow } from "zustand/shallow"
-import { updateComment } from "../../../entities/comment/api/updateComment"
+import { useUpdateComment } from "../../../entities/comment/api/updateComment"
 
 const EditCommentDialog = () => {
   const { showEditCommentDialog, setShowEditCommentDialog, selectedComment, setSelectedComment } = useCommentStore(
@@ -14,6 +14,9 @@ const EditCommentDialog = () => {
       setSelectedComment: state.setSelectedComment,
     })),
   )
+
+  const { updateComment, isLoading } = useUpdateComment()
+  
   return (
     <Dialog open={showEditCommentDialog} onOpenChange={setShowEditCommentDialog}>
       <DialogContent>
@@ -34,7 +37,12 @@ const EditCommentDialog = () => {
               }
             }}
           />
-          <Button onClick={updateComment}>댓글 업데이트</Button>
+          <Button 
+            onClick={updateComment} 
+            disabled={isLoading}
+          >
+            {isLoading ? '업데이트 중...' : '댓글 업데이트'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
