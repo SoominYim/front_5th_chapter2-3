@@ -4,9 +4,14 @@ import { useShallow } from "zustand/shallow"
 import { deleteCommentAPI } from "../api/commentApi"
 
 /**
- * 댓글 삭제를 위한 커스텀 훅
+ * 댓글 삭제를 위한  훅
  */
-export const useDeleteComment = () => {
+export const useDeleteComment = (): {
+  deleteComment: (id: number, postId: number) => void;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+} => {
   const queryClient = useQueryClient()
   const { comments, setComments } = useCommentStore(
     useShallow((state) => ({

@@ -4,9 +4,14 @@ import { useShallow } from "zustand/shallow"
 import { updateCommentAPI } from "../api/commentApi"
 
 /**
- * 댓글 업데이트를 위한 커스텀 훅
+ * 댓글 업데이트를 위한 훅
  */
-export const useUpdateComment = () => {
+export const useUpdateComment = (): {
+  updateComment: () => void;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+} => {
   const queryClient = useQueryClient()
   const { comments, selectedComment, setComments, setShowEditCommentDialog } = useCommentStore(
     useShallow((state) => ({
@@ -25,7 +30,13 @@ export const useUpdateComment = () => {
       if (data.postId && comments[data.postId]) {
         setComments(
           data.postId,
-          comments[data.postId].map((comment) => (comment.id === data.id ? data : comment)),
+          comments[data.postId].map((comment) => 
+            comment.id === data.id ? {
+              ...comment,      // 기존 댓글 구조 유지
+              body: data.body, // 수정된 내용으로 업데이트
+              isUpdated: data.isUpdated
+            } : comment
+          ),
         )
         
         // 추가적으로 쿼리 캐시 무효화

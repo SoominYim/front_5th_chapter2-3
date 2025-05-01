@@ -2,8 +2,9 @@
 
 /**
  * 게시물별 댓글 목록 가져오기
+ * @param postId 게시물 ID
  */
-export const fetchCommentsAPI = async (postId: number) => {
+export const fetchCommentsAPI = async (postId: number): Promise<{ comments: any[]; total: number }> => {
   try {
     const response = await fetch(`/api/comments/post/${postId}`)
     
@@ -24,17 +25,15 @@ export const fetchCommentsAPI = async (postId: number) => {
 
 /**
  * 댓글 추가
+ * @param commentData 댓글 데이터
  */
-export const createCommentAPI = async (commentData: any) => {
+export const createCommentAPI = async (commentData: any): Promise<any> => {
   // postId가 null이면 중단
   if (commentData.postId === null) {
     throw new Error("댓글 추가 오류: 게시물 ID가 필요합니다.")
   }
 
   try {
-    // 디버깅: 요청 데이터 로깅
-    console.log("댓글 추가 요청 데이터:", JSON.stringify(commentData, null, 2))
-
     const response = await fetch("/api/comments/add", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -48,6 +47,7 @@ export const createCommentAPI = async (commentData: any) => {
     throw new Error(`서버 오류: ${response.status} ${response.statusText}`)
   } catch (error) {
     console.error("댓글 추가 오류:", error)
+
     // 오류가 발생해도 UI에서는 추가된 것처럼 처리
     const randomId = Math.floor(Math.random() * 9000) + 1000 // 1000에서 9999 사이의 랜덤 ID
     return { 
@@ -60,8 +60,11 @@ export const createCommentAPI = async (commentData: any) => {
 
 /**
  * 댓글 업데이트
+ * @param id 댓글 ID
+ * @param body 댓글 내용
+ * @param postId 게시물 ID
  */
-export const updateCommentAPI = async ({ id, body, postId }: { id: number; body: string; postId?: number }) => {
+export const updateCommentAPI = async ({ id, body, postId }: { id: number; body: string; postId?: number }): Promise<{ id: number; body: string; postId?: number; isUpdated?: boolean }> => {
   try {
     const response = await fetch(`/api/comments/${id}`, {
       method: "PUT",
@@ -75,8 +78,8 @@ export const updateCommentAPI = async ({ id, body, postId }: { id: number; body:
     
     throw new Error("댓글 업데이트 실패")
   } catch (error) {
-    console.error("댓글 업데이트 오류:", error)
     // 오류가 발생해도 UI에서는 업데이트된 것처럼 처리
+    console.error("댓글 업데이트 오류:", error)
     return { 
       id, 
       body, 
@@ -88,8 +91,9 @@ export const updateCommentAPI = async ({ id, body, postId }: { id: number; body:
 
 /**
  * 댓글 삭제
+ * @param id 댓글 ID
  */
-export const deleteCommentAPI = async (id: number) => {
+export const deleteCommentAPI = async (id: number): Promise<{ id: number; isDeleted?: boolean }> => {
   try {
     const response = await fetch(`/api/comments/${id}`, {
       method: "DELETE",
@@ -101,16 +105,18 @@ export const deleteCommentAPI = async (id: number) => {
     
     throw new Error("댓글 삭제 실패")
   } catch (error) {
-    console.error("댓글 삭제 오류:", error)
     // 오류가 발생해도 UI에서는 삭제된 것처럼 처리
+    console.error("댓글 삭제 오류:", error)
     return { id, isDeleted: true }
   }
 }
 
 /**
  * 댓글 좋아요
+ * @param id 댓글 ID
+ * @param likes 좋아요 수
  */
-export const likeCommentAPI = async ({ id, likes }: { id: number; likes: number }) => {
+export const likeCommentAPI = async ({ id, likes }: { id: number; likes: number }): Promise<{ id: number; likes: number; isLiked?: boolean }> => {
   try {
     const response = await fetch(`/api/comments/${id}`, {
       method: "PATCH",
@@ -124,8 +130,8 @@ export const likeCommentAPI = async ({ id, likes }: { id: number; likes: number 
     
     throw new Error("댓글 좋아요 실패")
   } catch (error) {
-    console.error("댓글 좋아요 오류:", error)
     // 오류가 발생해도 UI에서는 좋아요가 증가된 것처럼 처리
+    console.error("댓글 좋아요 오류:", error)
     return { 
       id, 
       likes: likes + 1, 

@@ -4,9 +4,15 @@ import { useShallow } from "zustand/shallow"
 import { createCommentAPI } from "../api/commentApi"
 
 /**
- * 댓글 추가를 위한 커스텀 훅
+ * 댓글 추가를 위한 훅
+ * @returns {addComment: () => void, isLoading: boolean, isError: boolean, error: Error | null} 댓글 추가 함수, 로딩 상태, 오류 상태, 오류 객체
  */
-export const useCreateComment = () => {
+export const useCreateComment = (): {
+  addComment: () => void;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+} => {
   const queryClient = useQueryClient()
   const { newComment, comments, setComments, setShowAddCommentDialog, setNewComment } = useCommentStore(
     useShallow((state) => ({
